@@ -423,7 +423,8 @@
             let kg = 0, ing = 0, cost = 0, op = 0, html = "";
 
             db.ventas.forEach(v => {
-                const fV = v.fecha.split('T')[0];
+                const d = new Date(v.fecha);
+const fV = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 if((ini && fV < ini) || (fin && fV > fin)) return;
                 v.items.forEach(it => {
                     if(busq && !it.nombre.toLowerCase().includes(busq)) return;
