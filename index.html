@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POSV.1 Lite - Insumos Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
+        * { box-sizing: border-box; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); }
+        .tab-active { border-bottom: 4px solid #2563eb; color: #2563eb; font-weight: 800; }
+        .section-content { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #canvas-ticket { display: none; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Ajuste para que las tablas no rompan el layout en móviles */
+        .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+    <nav class="glass sticky top-0 z-50 border-b border-slate-200 shadow-sm">
+        <div class="flex overflow-x-auto justify-between max-w-5xl mx-auto px-2 scrollbar-hide">
+            <button onclick="showSection('ventas')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px] tab-active" id="btn-ventas">
+                <i data-lucide="shopping-cart" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Ventas</span>
+            </button>
+            <button onclick="showSection('productos')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-productos">
+                <i data-lucide="package" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Stock</span>
+            </button>
+            <button onclick="showSection('gastos')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-gastos">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Insumos</span>
+            </button>
+            <button onclick="showSection('reportes')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-reportes">
+                <i data-lucide="bar-chart-big" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Reportes</span>
+            </button>
+            <button onclick="showSection('sistema')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-sistema">
+                <i data-lucide="settings-2" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Sistema</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-4 pb-20 w-full overflow-x-hidden">
+        
+        <section id="sec-ventas" class="section-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                        <h2 class="text-xl font-extrabold text-slate-800">Venta Rápida</h2>
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="busqueda-venta" onkeyup="renderVentaRapida()" placeholder="Buscar producto..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <i data-lucide="search" class="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400"></i>
+                        </div>
+                    </div>
+                    <div id="grid-productos-venta" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-xl border h-fit lg:sticky lg:top-24">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold">Carrito</h2>
+                        <span id="cart-count" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold">0 ítems</span>
+                    </div>
+                    <div id="carrito-items" class="space-y-3 mb-6 max-h-80 overflow-y-auto pr-2"></div>
+                    <div class="border-t border-dashed pt-4">
+                        <div class="flex justify-between text-2xl sm:text-3xl font-black text-blue-700 mb-6">
+                            <span>TOTAL</span>
+                            <span id="total-carrito">$0,00</span>
+                        </div>
+                        <button onclick="finalizarVentaProceso()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2 active:scale-95 transition-all">
+                            <i data-lucide="save"></i> Registrar Venta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-productos" class="section-content hidden">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border mb-6">
+                <h2 id="titulo-form-prod" class="text-xl font-bold mb-4">Gestión de Producto</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <input type="text" id="p-id" placeholder="ID (Ejem: 001)" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <input type="text" id="p-nombre" placeholder="Nombre" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <input type="number" id="p-costo" placeholder="Costo Unit." step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <input type="number" id="p-costo-op" placeholder="Costo Op." step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <input type="number" id="p-precio" placeholder="P. Venta" step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <button id="btn-guardar-prod" onclick="guardarProducto()" class="flex-1 sm:flex-none bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">Guardar</button>
+                    <button onclick="limpiarFormularioProd()" class="flex-1 sm:flex-none bg-slate-100 text-slate-500 px-8 py-3 rounded-xl font-bold hover:bg-slate-200">Cancelar</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                <div class="table-container">
+                    <table class="w-full text-left min-w-[450px]">
+                        <thead class="bg-slate-50 border-b">
+                            <tr class="text-[11px] text-slate-400 uppercase tracking-widest">
+                                <th class="p-4">ID</th>
+                                <th class="p-4">Producto</th>
+                                <th class="p-4 text-center">Precio</th>
+                                <th class="p-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-productos"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-gastos" class="section-content hidden">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border max-w-lg mx-auto">
+                <h2 class="text-2xl font-black mb-6 text-orange-500">Registro de Insumos</h2>
+                <p class="text-xs text-slate-400 mb-4">Usa esta sección para registrar compras de materia prima. Estos datos se guardan para análisis de IA en el JSON.</p>
+                <div class="space-y-4">
+                    <input type="text" id="g-descripcion" placeholder="Ej: Bolsa Harina 50kg, 10L Aceite" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:ring-2 focus:ring-orange-500">
+                    <input type="number" id="g-monto" placeholder="Costo de compra $" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:ring-2 focus:ring-orange-500">
+                    <button onclick="guardarGasto()" class="w-full bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-2xl font-bold shadow-lg transition-colors">Registrar para Análisis</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-reportes" class="section-content hidden">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6 text-center">
+                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Kg Vendidos</p><p id="rep-kg" class="text-base font-black">0</p></div>
+                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Ingresos</p><p id="rep-ingresos" class="text-base font-black text-blue-600">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Costo Prod.</p><p id="rep-costo" class="text-base font-black text-red-400">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Costo Op.</p><p id="rep-operativo" class="text-base font-black text-orange-400">$0</p></div>
+                <div class="bg-green-600 p-3 rounded-2xl text-white font-bold col-span-2 md:col-span-1"><p class="text-[9px] uppercase">Ganancia Neta</p><p id="rep-ganancia" class="text-base font-black">$0</p></div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl border mb-6 flex flex-col sm:flex-row gap-4 items-end">
+                <div class="w-full">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Buscar Producto</label>
+                    <input type="text" id="f-busqueda" placeholder="Nombre..." class="w-full p-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div class="w-full">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Desde</label>
+                    <input type="date" id="f-inicio" class="w-full p-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div class="w-full">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Hasta</label>
+                    <input type="date" id="f-fin" class="w-full p-2 border rounded-lg text-sm outline-none">
+                </div>
+                <button onclick="filtrarReportes()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg font-bold">Filtrar</button>
+            </div>
+
+            <div class="bg-white rounded-3xl border overflow-hidden mb-6">
+                <div class="table-container">
+                    <table class="w-full text-xs text-left min-w-[500px]">
+                        <thead class="bg-slate-50 border-b text-slate-400">
+                            <tr><th class="p-3">FECHA</th><th class="p-3">ID</th><th class="p-3">PRODUCTO</th><th class="p-3">KG</th><th class="p-3 text-right">IMPORTE</th></tr>
+                        </thead>
+                        <tbody id="detalle-ventas-reporte"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border overflow-hidden">
+                <div class="bg-orange-50 p-3 border-b text-orange-600 font-bold text-xs uppercase">Historial de Compras (IA)</div>
+                <div id="detalle-gastos-reporte" class="divide-y text-xs"></div>
+            </div>
+        </section>
+
+        <section id="sec-sistema" class="section-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                    <h3 class="font-bold mb-4 flex items-center gap-2 text-blue-600"><i data-lucide="image"></i> Configuración Ticket</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="conf-titulo" placeholder="Nombre del Comercio" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <textarea id="conf-cabecera" placeholder="Dirección / WhatsApp" class="w-full p-3 border rounded-xl h-20 outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        <input type="text" id="conf-pie1" placeholder="Mensaje de Despedida" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="conf-pie2" placeholder="Nota adicional" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="guardarConfig()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">Guardar Configuración</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4 text-xs font-bold uppercase">
+                    <button onclick="exportarDatos()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-blue-50 transition-all">
+                        <i data-lucide="download-cloud" class="w-8 h-8 text-blue-500 mb-2"></i>Exportar JSON para IA
+                    </button>
+                    <div class="bg-white border p-6 rounded-3xl flex flex-col items-center relative hover:bg-green-50 transition-all cursor-pointer">
+                        <i data-lucide="upload-cloud" class="w-8 h-8 text-green-500 mb-2"></i>Importar Respaldo
+                        <input type="file" onchange="importarDatos(event)" class="absolute inset-0 opacity-0 cursor-pointer">
+                    </div>
+                    <button onclick="limpiarRegistros()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-red-50 text-red-500 transition-all">
+                        <i data-lucide="trash-2" class="w-8 h-8 mb-2"></i>Vaciar Ventas e Insumos
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal-calculo" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center p-4 z-[100] backdrop-blur-sm">
+        <div class="bg-white rounded-[2rem] p-6 w-full max-w-[95%] sm:max-w-sm shadow-2xl">
+            <h3 id="modal-titulo" class="text-2xl font-black text-slate-800 mb-1"></h3>
+            <p id="modal-precio-info" class="text-blue-600 font-bold mb-6 text-sm"></p>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Peso (KG)</label>
+                    <input type="number" id="calc-peso" oninput="actualizarCalc('peso')" step="0.001" class="w-full text-3xl sm:text-4xl p-4 bg-slate-50 border-2 rounded-3xl outline-none font-black" placeholder="0.000">
+                </div>
+                <div class="relative flex items-center justify-center"><div class="h-[1px] bg-slate-200 w-full absolute"></div><span class="bg-white px-4 relative text-slate-400 font-bold text-[10px] uppercase">O</span></div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Importe ($)</label>
+                    <input type="number" id="calc-importe" oninput="actualizarCalc('importe')" step="0.01" class="w-full text-3xl sm:text-4xl p-4 bg-slate-50 border-2 rounded-3xl outline-none font-black" placeholder="0.00">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="cerrarModal()" class="flex-1 py-4 font-bold text-slate-400">Cerrar</button>
+                    <button onclick="confirmarAgregarAlCarrito()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-3xl hover:bg-blue-700 active:scale-95 transition-all">AGREGAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas-ticket" width="800" height="1200"></canvas>
+
+    <script>
+        // --- UTILIDADES ARGENTINA ---
+        const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
+        
+        const fFechaCompletaArg = (iso) => {
+            return new Date(iso).toLocaleString('es-AR', { 
+                timeZone: 'America/Argentina/Buenos_Aires',
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        };
+
+        const fSoloFechaArg = (iso) => {
+            return new Date(iso).toLocaleDateString('es-AR', { 
+                timeZone: 'America/Argentina/Buenos_Aires',
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+        };
+
+        // --- DB CORE ---
+        let db = {
+            productos: JSON.parse(localStorage.getItem('pos_v121_prod')) || [],
+            ventas: JSON.parse(localStorage.getItem('pos_v121_ventas')) || [],
+            gastos: JSON.parse(localStorage.getItem('pos_v121_gastos')) || [],
+            config: JSON.parse(localStorage.getItem('pos_v121_conf')) || { 
+                titulo: 'MI NEGOCIO', cabecera: 'Dir. Comercial\nTel: 123456', 
+                pie1: 'Gracias por su compra', pie2: 'IVA Responsable Insc.' 
+            }
+        };
+
+        let carrito = [];
+        let productoTemporal = null;
+        let editandoId = null;
+
+        const save = () => {
+            localStorage.setItem('pos_v121_prod', JSON.stringify(db.productos));
+            localStorage.setItem('pos_v121_ventas', JSON.stringify(db.ventas));
+            localStorage.setItem('pos_v121_gastos', JSON.stringify(db.gastos));
+            localStorage.setItem('pos_v121_conf', JSON.stringify(db.config));
+        };
+
+        function showSection(id) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById('btn-' + id).classList.add('tab-active');
+            if(id === 'ventas') renderVentaRapida();
+            if(id === 'productos') renderListaProductos();
+            if(id === 'reportes') filtrarReportes();
+            if(id === 'sistema') cargarConfigInputs();
+            lucide.createIcons();
+            window.scrollTo(0,0);
+        }
+
+        // --- PRODUCTOS ---
+        function guardarProducto() {
+            const id = document.getElementById('p-id').value.trim();
+            const nombre = document.getElementById('p-nombre').value.trim();
+            const costo = parseFloat(document.getElementById('p-costo').value) || 0;
+            const costoOp = parseFloat(document.getElementById('p-costo-op').value) || 0;
+            const precio = parseFloat(document.getElementById('p-precio').value) || 0;
+
+            if(!id || !nombre || precio <= 0) return alert("Complete los campos.");
+
+            const prodData = { id, nombre, costo, costoOp, precio };
+            const idx = db.productos.findIndex(p => p.id === id);
+
+            if (editandoId === null && idx > -1) return alert("Ese ID ya existe.");
+
+            if (idx > -1) db.productos[idx] = prodData;
+            else db.productos.push(prodData);
+
+            save(); limpiarFormularioProd(); renderListaProductos();
+            alert("Producto guardado.");
+        }
+
+        function cargarProductoEdicion(id) {
+            const p = db.productos.find(prod => prod.id === id);
+            if(!p) return;
+            editandoId = id;
+            document.getElementById('p-id').value = p.id;
+            document.getElementById('p-id').readOnly = true;
+            document.getElementById('p-nombre').value = p.nombre;
+            document.getElementById('p-costo').value = p.costo;
+            document.getElementById('p-costo-op').value = p.costoOp;
+            document.getElementById('p-precio').value = p.precio;
+            document.getElementById('titulo-form-prod').innerText = "Editando: " + p.nombre;
+            document.getElementById('btn-guardar-prod').innerText = "Actualizar";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function limpiarFormularioProd() {
+            editandoId = null;
+            document.getElementById('p-id').value = "";
+            document.getElementById('p-id').readOnly = false;
+            document.getElementById('p-nombre').value = "";
+            document.getElementById('p-costo').value = "";
+            document.getElementById('p-costo-op').value = "";
+            document.getElementById('p-precio').value = "";
+            document.getElementById('titulo-form-prod').innerText = "Gestión de Producto";
+            document.getElementById('btn-guardar-prod').innerText = "Guardar";
+        }
+
+        function renderListaProductos() {
+            document.getElementById('tabla-productos').innerHTML = db.productos.map(p => `
+                <tr class="border-b text-xs hover:bg-slate-50">
+                    <td class="p-4 font-mono">${p.id}</td>
+                    <td class="p-4 font-bold">${p.nombre}</td>
+                    <td class="p-4 text-center font-black text-blue-600">${fMoneda(p.precio)}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="cargarProductoEdicion('${p.id}')" class="p-2 text-blue-600">✏️</button>
+                        <button onclick="eliminarProducto('${p.id}')" class="p-2 text-red-400">❌</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function eliminarProducto(id) { if(confirm("¿Eliminar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); } }
+
+        // --- VENTAS ---
+        function renderVentaRapida() {
+            const b = document.getElementById('busqueda-venta').value.toLowerCase();
+            const filtrados = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
+            document.getElementById('grid-productos-venta').innerHTML = filtrados.map(p => `
+                <button onclick="abrirCalculo('${p.id}')" class="bg-white p-4 rounded-3xl border shadow-sm text-center active:scale-95 transition-all hover:border-blue-300">
+                    <p class="font-extrabold text-sm mb-1 line-clamp-2">${p.nombre}</p>
+                    <p class="text-blue-600 font-black text-xs">${fMoneda(p.precio)}</p>
+                </button>`).join('');
+        }
+
+        function abrirCalculo(id) {
+            productoTemporal = db.productos.find(p => p.id === id);
+            document.getElementById('modal-titulo').innerText = productoTemporal.nombre;
+            document.getElementById('modal-precio-info').innerText = `${fMoneda(productoTemporal.precio)} x KG`;
+            document.getElementById('calc-peso').value = '';
+            document.getElementById('calc-importe').value = '';
+            document.getElementById('modal-calculo').classList.replace('hidden', 'flex');
+            setTimeout(() => document.getElementById('calc-peso').focus(), 150);
+        }
+
+        function actualizarCalc(tipo) {
+            const precio = productoTemporal.precio;
+            if(tipo === 'peso') {
+                const p = parseFloat(document.getElementById('calc-peso').value) || 0;
+                document.getElementById('calc-importe').value = (p * precio).toFixed(2);
+            } else {
+                const i = parseFloat(document.getElementById('calc-importe').value) || 0;
+                document.getElementById('calc-peso').value = (i / precio).toFixed(3);
+            }
+        }
+
+        function confirmarAgregarAlCarrito() {
+            const peso = parseFloat(document.getElementById('calc-peso').value);
+            const importe = parseFloat(document.getElementById('calc-importe').value);
+            if(peso > 0) {
+                carrito.push({ ...productoTemporal, pesoSeleccionado: peso, importeFinal: importe, idUnico: Date.now() });
+                renderCarrito(); cerrarModal();
+            }
+        }
+
+        function renderCarrito() {
+            let total = 0;
+            document.getElementById('carrito-items').innerHTML = carrito.map((it, i) => {
+                total += it.importeFinal;
+                return `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl text-xs border border-slate-100">
+                    <div class="flex-1 min-w-0 pr-2"><p class="font-bold truncate">${it.nombre}</p><p class="text-[9px] text-slate-400">${it.pesoSeleccionado.toFixed(3)} KG x ${fMoneda(it.precio)}</p></div>
+                    <div class="text-right flex-shrink-0"><p class="font-black text-blue-600">${fMoneda(it.importeFinal)}</p>
+                    <button onclick="eliminarDelCarrito(${i})" class="text-red-400 text-[9px] font-bold uppercase">Quitar</button></div>
+                </div>`;
+            }).join('');
+            document.getElementById('total-carrito').innerText = fMoneda(total);
+            document.getElementById('cart-count').innerText = `${carrito.length} ítems`;
+        }
+
+        function eliminarDelCarrito(idx) { carrito.splice(idx, 1); renderCarrito(); }
+
+        function finalizarVentaProceso() {
+            if(!carrito.length) return alert("Carrito vacío");
+            const venta = { 
+                id: Date.now(), fecha: new Date().toISOString(), 
+                items: [...carrito], total: carrito.reduce((a,b) => a + b.importeFinal, 0) 
+            };
+            db.ventas.push(venta);
+            save();
+            if(confirm("¿Descargar Comprobante?")) generarTicketPNG(venta);
+            carrito = []; renderCarrito();
+        }
+
+        // --- GASTOS / INSUMOS ---
+        function guardarGasto() {
+            const desc = document.getElementById('g-descripcion').value.trim();
+            const monto = parseFloat(document.getElementById('g-monto').value);
+            if(desc && monto > 0) {
+                db.gastos.push({ fecha: new Date().toISOString(), desc, monto });
+                save(); alert("Insumo registrado para el análisis IA.");
+                document.getElementById('g-descripcion').value = "";
+                document.getElementById('g-monto').value = "";
+            }
+        }
+
+        // --- REPORTES ---
+        function filtrarReportes() {
+            const ini = document.getElementById('f-inicio').value;
+            const fin = document.getElementById('f-fin').value;
+            const busq = document.getElementById('f-busqueda').value.toLowerCase();
+            let kg = 0, ing = 0, cost = 0, op = 0, html = "";
+
+            db.ventas.forEach(v => {
+                const fV = v.fecha.split('T')[0];
+                if((ini && fV < ini) || (fin && fV > fin)) return;
+                v.items.forEach(it => {
+                    if(busq && !it.nombre.toLowerCase().includes(busq)) return;
+                    kg += it.pesoSeleccionado; ing += it.importeFinal;
+                    cost += (it.costo * it.pesoSeleccionado); op += (it.costoOp * it.pesoSeleccionado);
+                    html += `<tr class="border-b hover:bg-slate-50">
+                        <td class="p-3 text-slate-400">${fSoloFechaArg(v.fecha)}</td>
+                        <td class="p-3 font-mono text-[10px]">${it.id}</td>
+                        <td class="p-3 font-bold">${it.nombre}</td>
+                        <td class="p-3">${it.pesoSeleccionado.toFixed(3)}</td>
+                        <td class="p-3 text-right font-black text-blue-600">${fMoneda(it.importeFinal)}</td>
+                    </tr>`;
+                });
+            });
+
+            document.getElementById('rep-kg').innerText = kg.toFixed(2);
+            document.getElementById('rep-ingresos').innerText = fMoneda(ing);
+            document.getElementById('rep-costo').innerText = fMoneda(cost);
+            document.getElementById('rep-operativo').innerText = fMoneda(op);
+            document.getElementById('rep-ganancia').innerText = fMoneda(ing - (cost + op));
+            
+            document.getElementById('detalle-ventas-reporte').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
+            document.getElementById('detalle-gastos-reporte').innerHTML = db.gastos.map(g => `
+                <div class="p-3 flex justify-between items-center">
+                    <span class="truncate pr-2">${g.desc} <small class="text-slate-400 block">${fSoloFechaArg(g.fecha)}</small></span>
+                    <span class="text-orange-500 font-bold flex-shrink-0">${fMoneda(g.monto)}</span>
+                </div>`).join('');
+        }
+
+        // --- SISTEMA ---
+        function cargarConfigInputs() {
+            document.getElementById('conf-titulo').value = db.config.titulo;
+            document.getElementById('conf-cabecera').value = db.config.cabecera;
+            document.getElementById('conf-pie1').value = db.config.pie1;
+            document.getElementById('conf-pie2').value = db.config.pie2;
+        }
+
+        function guardarConfig() {
+            db.config = { 
+                titulo: document.getElementById('conf-titulo').value, 
+                cabecera: document.getElementById('conf-cabecera').value, 
+                pie1: document.getElementById('conf-pie1').value, 
+                pie2: document.getElementById('conf-pie2').value 
+            };
+            save(); alert("Guardado.");
+        }
+
+        function exportarDatos() {
+            const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const a = document.createElement('a'); a.href = data; 
+            a.download = `DATA_IA_POS_${fSoloFechaArg(new Date().toISOString())}.json`; a.click();
+        }
+
+        function importarDatos(e) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { db = JSON.parse(ev.target.result); save(); location.reload(); };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        function limpiarRegistros() { if(confirm("¿Borrar historial?")) { db.ventas = []; db.gastos = []; save(); location.reload(); } }
+        function cerrarModal() { document.getElementById('modal-calculo').classList.replace('flex', 'hidden'); }
+
+        // --- TICKET ---
+        function generarTicketPNG(venta) {
+            const canvas = document.getElementById('canvas-ticket');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 800, 1200);
+            ctx.textAlign = "center"; ctx.fillStyle = "#000"; ctx.font = "bold 50px Inter";
+            ctx.fillText(db.config.titulo.toUpperCase(), 400, 100);
+            ctx.font = "24px Inter"; ctx.fillStyle = "#666";
+            db.config.cabecera.split('\n').forEach((l, i) => ctx.fillText(l, 400, 150 + (i * 35)));
+            ctx.textAlign = "left"; ctx.font = "bold 22px Inter";
+            ctx.fillText("FECHA: " + fFechaCompletaArg(venta.fecha), 50, 300);
+            ctx.fillText("TICKET: #" + venta.id, 50, 335);
+            let y = 450;
+            venta.items.forEach(it => {
+                ctx.textAlign = "left"; ctx.fillText(it.nombre, 50, y);
+                ctx.textAlign = "right"; ctx.fillText(fMoneda(it.importeFinal), 750, y);
+                y += 45;
+            });
+            ctx.fillStyle = "#2563eb"; ctx.font = "bold 45px Inter"; ctx.textAlign = "right";
+            ctx.fillText("TOTAL: " + fMoneda(venta.total), 750, y + 100);
+            const link = document.createElement('a');
+            link.download = `Ticket_${venta.id}.png`; link.href = canvas.toDataURL(); link.click();
+        }
+
+        window.onload = () => { lucide.createIcons(); renderVentaRapida(); };
+    </script>
+</body>
+</html>
