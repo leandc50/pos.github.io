@@ -370,7 +370,20 @@
             const peso = parseFloat(document.getElementById('calc-peso').value);
             const importe = parseFloat(document.getElementById('calc-importe').value);
             if(peso > 0) {
-                carrito.push({ ...productoTemporal, pesoSeleccionado: peso, importeFinal: importe, idUnico: Date.now() });
+                // CORRECCIÓN: Cálculo de desglose exacto para que figure en el JSON exportado
+                const costoBaseCalculado = productoTemporal.costo * peso;
+                const gastoOpCalculado = productoTemporal.costoOp * peso;
+                const costoTotalCalculado = costoBaseCalculado + gastoOpCalculado;
+
+                carrito.push({ 
+                    ...productoTemporal, 
+                    pesoSeleccionado: peso, 
+                    importeFinal: importe, 
+                    costoBaseTotal: costoBaseCalculado,
+                    gastoOpTotal: gastoOpCalculado,
+                    costoTotalReal: costoTotalCalculado,
+                    idUnico: Date.now() 
+                });
                 renderCarrito(); cerrarModal();
             }
         }
@@ -416,43 +429,71 @@
         }
 
         // --- REPORTES ---
-        function filtrarReportes() {
-            const ini = document.getElementById('f-inicio').value;
-            const fin = document.getElementById('f-fin').value;
-            const busq = document.getElementById('f-busqueda').value.toLowerCase();
-            let kg = 0, ing = 0, cost = 0, op = 0, html = "";
+        // MODIFICACIÓN EN filtrarReportes PARA USAR DATOS HISTÓRICOS REALES
+function filtrarReportes() {
+    const ini = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    const busq = document.getElementById('f-busqueda').value.toLowerCase();
+    let kg = 0, ing = 0, cost = 0, op = 0, html = "";
 
-            db.ventas.forEach(v => {
-                const d = new Date(v.fecha);
-const fV = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                if((ini && fV < ini) || (fin && fV > fin)) return;
-                v.items.forEach(it => {
-                    if(busq && !it.nombre.toLowerCase().includes(busq)) return;
-                    kg += it.pesoSeleccionado; ing += it.importeFinal;
-                    cost += (it.costo * it.pesoSeleccionado); op += (it.costoOp * it.pesoSeleccionado);
-                    html += `<tr class="border-b hover:bg-slate-50">
-                        <td class="p-3 text-slate-400">${fSoloFechaArg(v.fecha)}</td>
-                        <td class="p-3 font-mono text-[10px]">${it.id}</td>
-                        <td class="p-3 font-bold">${it.nombre}</td>
-                        <td class="p-3">${it.pesoSeleccionado.toFixed(3)}</td>
-                        <td class="p-3 text-right font-black text-blue-600">${fMoneda(it.importeFinal)}</td>
-                    </tr>`;
-                });
-            });
-
-            document.getElementById('rep-kg').innerText = kg.toFixed(2);
-            document.getElementById('rep-ingresos').innerText = fMoneda(ing);
-            document.getElementById('rep-costo').innerText = fMoneda(cost);
-            document.getElementById('rep-operativo').innerText = fMoneda(op);
-            document.getElementById('rep-ganancia').innerText = fMoneda(ing - (cost + op));
+    db.ventas.forEach(v => {
+        const d = new Date(v.fecha);
+        const fV = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        if((ini && fV < ini) || (fin && fV > fin)) return;
+        
+        v.items.forEach(it => {
+            if(busq && !it.nombre.toLowerCase().includes(busq)) return;
+            kg += it.pesoSeleccionado; 
+            ing += it.importeFinal;
             
-            document.getElementById('detalle-ventas-reporte').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
-            document.getElementById('detalle-gastos-reporte').innerHTML = db.gastos.map(g => `
-                <div class="p-3 flex justify-between items-center">
-                    <span class="truncate pr-2">${g.desc} <small class="text-slate-400 block">${fSoloFechaArg(g.fecha)}</small></span>
-                    <span class="text-orange-500 font-bold flex-shrink-0">${fMoneda(g.monto)}</span>
-                </div>`).join('');
-        }
+            // CAMBIO LÓGICO: Usar el costo grabado en la venta, no el del stock actual
+            cost += (it.costoBaseTotal || (it.costo * it.pesoSeleccionado)); 
+            op += (it.gastoOpTotal || (it.costoOp * it.pesoSeleccionado));
+            
+            html += `<tr class="border-b hover:bg-slate-50">
+                <td class="p-3 text-slate-400">${fSoloFechaArg(v.fecha)}</td>
+                <td class="p-3 font-mono text-[10px]">${it.id}</td>
+                <td class="p-3 font-bold">${it.nombre}</td>
+                <td class="p-3">${it.pesoSeleccionado.toFixed(3)}</td>
+                <td class="p-3 text-right font-black text-blue-600">${fMoneda(it.importeFinal)}</td>
+            </tr>`;
+        });
+    });
+
+    document.getElementById('rep-kg').innerText = kg.toFixed(2);
+    document.getElementById('rep-ingresos').innerText = fMoneda(ing);
+    document.getElementById('rep-costo').innerText = fMoneda(cost);
+    document.getElementById('rep-operativo').innerText = fMoneda(op);
+    document.getElementById('rep-ganancia').innerText = fMoneda(ing - (cost + op));
+    
+    document.getElementById('detalle-ventas-reporte').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
+    // ... resto de la función igual
+}
+
+// MEJORA EN finalizarVentaProceso PARA SEGURIDAD DE DATOS
+function finalizarVentaProceso() {
+    if(!carrito.length) return alert("Carrito vacío");
+    
+    const venta = { 
+        id: Date.now(), 
+        fecha: new Date().toISOString(), 
+        items: [...carrito], 
+        total: Math.round(carrito.reduce((a,b) => a + b.importeFinal, 0)) 
+    };
+    
+    db.ventas.push(venta);
+    save(); // Guardado inmediato en localStorage
+
+    // Vaciamos el carrito ANTES del confirm para evitar duplicados si el usuario tarda en responder
+    const temporalParaTicket = {...venta};
+    carrito = []; 
+    renderCarrito();
+
+    if(confirm("¿Venta registrada! ¿Descargar Comprobante?")) {
+        generarTicketPNG(temporalParaTicket);
+    }
+}
+
 
         // --- SISTEMA ---
         function cargarConfigInputs() {
