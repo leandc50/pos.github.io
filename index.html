@@ -528,29 +528,126 @@ function finalizarVentaProceso() {
         function limpiarRegistros() { if(confirm("¿Borrar historial?")) { db.ventas = []; db.gastos = []; save(); location.reload(); } }
         function cerrarModal() { document.getElementById('modal-calculo').classList.replace('flex', 'hidden'); }
 
-        // --- TICKET ---
-        function generarTicketPNG(venta) {
-            const canvas = document.getElementById('canvas-ticket');
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 800, 1200);
-            ctx.textAlign = "center"; ctx.fillStyle = "#000"; ctx.font = "bold 50px Inter";
-            ctx.fillText(db.config.titulo.toUpperCase(), 400, 100);
-            ctx.font = "24px Inter"; ctx.fillStyle = "#666";
-            db.config.cabecera.split('\n').forEach((l, i) => ctx.fillText(l, 400, 150 + (i * 35)));
-            ctx.textAlign = "left"; ctx.font = "bold 22px Inter";
-            ctx.fillText("FECHA: " + fFechaCompletaArg(venta.fecha), 50, 300);
-            ctx.fillText("TICKET: #" + venta.id, 50, 335);
-            let y = 450;
-            venta.items.forEach(it => {
-                ctx.textAlign = "left"; ctx.fillText(it.nombre, 50, y);
-                ctx.textAlign = "right"; ctx.fillText(fMoneda(it.importeFinal), 750, y);
-                y += 45;
-            });
-            ctx.fillStyle = "#2563eb"; ctx.font = "bold 45px Inter"; ctx.textAlign = "right";
-            ctx.fillText("TOTAL: " + fMoneda(venta.total), 750, y + 100);
-            const link = document.createElement('a');
-            link.download = `Ticket_${venta.id}.png`; link.href = canvas.toDataURL(); link.click();
-        }
+        // --- TICKET CORREGIDO (ANCHO REAL Y CENTRADO) ---
+function generarTicketPNG(venta) {
+    const canvas = document.getElementById('canvas-ticket');
+    const ctx = canvas.getContext('2d');
+    
+    // Ajustamos el tamaño del lienzo internamente
+    // 600px es el estándar ideal para compartir por WhatsApp
+    canvas.width = 600; 
+    canvas.height = 1000; // Un alto generoso que luego podemos recortar si sobra
+
+    // Fondo blanco total
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1. ENCABEZADO
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#1e293b"; 
+    ctx.font = "bold 42px Inter, Arial, sans-serif";
+    ctx.fillText(db.config.titulo.toUpperCase(), 300, 80);
+
+    // Línea divisoria
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(50, 110); ctx.lineTo(550, 110); ctx.stroke();
+
+    // Cabecera (Dirección/Tel)
+    ctx.font = "18px Inter, sans-serif";
+    ctx.fillStyle = "#64748b";
+    let cabY = 150;
+    db.config.cabecera.split('\n').forEach((linea) => {
+        ctx.fillText(linea, 300, cabY);
+        cabY += 28;
+    });
+
+    // 2. DATOS DE VENTA
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 14px Inter";
+    ctx.fillText("FECHA Y HORA", 50, cabY + 40);
+    ctx.fillText("NÚMERO DE TICKET", 350, cabY + 40);
+    
+    ctx.fillStyle = "#1e293b";
+    ctx.font = "bold 18px Inter";
+    ctx.fillText(fFechaCompletaArg(venta.fecha), 50, cabY + 65);
+    ctx.fillText("#" + venta.id.toString().slice(-8), 350, cabY + 65);
+
+    // 3. TABLA DE ITEMS
+    let itemY = cabY + 130;
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillRect(50, itemY, 500, 45); // Fondo encabezado
+    
+    ctx.fillStyle = "#64748b";
+    ctx.font = "bold 15px Inter";
+    ctx.fillText("PRODUCTO / CANTIDAD", 65, itemY + 30);
+    ctx.textAlign = "right";
+    ctx.fillText("SUBTOTAL", 535, itemY + 30);
+
+    itemY += 85;
+    venta.items.forEach(it => {
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "bold 19px Inter";
+        let n = it.nombre.length > 25 ? it.nombre.slice(0, 23) + "..." : it.nombre;
+        ctx.fillText(n, 50, itemY);
+        
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "15px Inter";
+        ctx.fillText(it.pesoSeleccionado.toFixed(3) + " kg x " + fMoneda(it.precio), 50, itemY + 24);
+
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "bold 21px Inter";
+        ctx.fillText(fMoneda(it.importeFinal), 550, itemY + 12);
+        itemY += 75;
+    });
+
+    // 4. TOTAL (RECUADRO AZUL)
+    itemY += 10;
+    ctx.fillStyle = "#2563eb";
+    // Dibujamos el rectángulo del total
+    if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(50, itemY, 500, 90, 15);
+        ctx.fill();
+    } else {
+        ctx.fillRect(50, itemY, 500, 90);
+    }
+    
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 17px Inter";
+    ctx.fillText("TOTAL A PAGAR", 85, itemY + 55);
+    
+    ctx.textAlign = "right";
+    ctx.font = "bold 42px Inter";
+    ctx.fillText(fMoneda(venta.total), 515, itemY + 62);
+
+    // 5. PIE DE PÁGINA
+    itemY += 150;
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#64748b";
+    ctx.font = "italic 16px Inter";
+    ctx.fillText(db.config.pie1 || "", 300, itemY);
+    ctx.font = "14px Inter";
+    ctx.fillText(db.config.pie2 || "", 300, itemY + 25);
+
+    // RECORTAR CANVAS AL CONTENIDO REAL (Para evitar espacio en blanco abajo)
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = 600;
+    tempCanvas.height = itemY + 80; // Ajustamos el alto final
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // DESCARGA
+    const link = document.createElement('a');
+    link.download = `Ticket_${venta.id}.png`; 
+    link.href = tempCanvas.toDataURL("image/png"); 
+    link.click();
+}
+
 
         window.onload = () => { lucide.createIcons(); renderVentaRapida(); };
     </script>
