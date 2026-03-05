@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>POSV.1 Lite - Insumos Log</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -282,9 +281,9 @@
     <canvas id="canvas-ticket" width="800" height="1200"></canvas>
 
     <script>
-        // Agrega esta función arriba de todo, junto a tus otras utilidades
-const getHoy = () => new Date().toISOString().split('T')[0]; 
-const aFechaSimple = (iso) => new Date(iso).toISOString().split('T')[0];
+const getHoy = () => obtenerFechaLocal(new Date().toISOString()); 
+const aFechaSimple = (iso) => obtenerFechaLocal(iso);
+
 
         // --- UTILIDADES ARGENTINA ---
         const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
