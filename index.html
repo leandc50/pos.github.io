@@ -666,8 +666,23 @@ function finalizarVentaProceso() {
             reader.readAsText(e.target.files[0]);
         }
 
-        function limpiarRegistros() { if(confirm("¿Borrar historial?")) { db.ventas = []; db.gastos = []; save(); location.reload(); } }
-        function cerrarModal() { document.getElementById('modal-calculo').classList.replace('flex', 'hidden'); }
+        function limpiarRegistros() {
+    if(confirm("¿Estás seguro de borrar todas las ventas, gastos y resetear el estado de la Caja?")) {
+        // 1. Limpiar datos de ventas y gastos
+        db.ventas = [];
+        db.gastos = [];
+        
+        // 2. Limpiar variables de control de Caja
+        localStorage.removeItem('pos_caja_abierta');
+        localStorage.removeItem('pos_caja_inicio');
+        localStorage.removeItem('pos_historial_caja');
+        
+        // 3. Guardar cambios y recargar
+        save();
+        location.reload();
+    }
+}
+
         
         function exportarExcel() {
     // 1. Preparar datos de Ventas
