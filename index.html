@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>POSV.1 Lite - Insumos Log</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -19,6 +21,15 @@
         
         /* Ajuste para que las tablas no rompan el layout en móviles */
         .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        #modal-calculo {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">
@@ -37,7 +48,11 @@
             <button onclick="showSection('reportes')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-reportes">
                 <i data-lucide="bar-chart-big" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Reportes</span>
             </button>
-            <button onclick="showSection('sistema')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-sistema">
+            <button       onclick="showSection('caja')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-caja">
+    <i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Caja</span>
+</button>
+<button
+             onclick="showSection('sistema')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-sistema">
                 <i data-lucide="settings-2" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Sistema</span>
             </button>
         </div>
@@ -157,11 +172,58 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl border overflow-hidden">
-                <div class="bg-orange-50 p-3 border-b text-orange-600 font-bold text-xs uppercase">Historial de Compras (IA)</div>
-                <div id="detalle-gastos-reporte" class="divide-y text-xs"></div>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="bg-white p-6 rounded-3xl border shadow-sm">
+        <h3 class="font-black text-slate-800 mb-4 flex items-center gap-2">
+            <i data-lucide="award" class="w-5 h-5 text-yellow-500"></i> Top 5 Productos (KG)
+        </h3>
+        <div id="top-productos-lista" class="space-y-3"></div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-3xl border shadow-sm">
+        <h3 class="font-black text-slate-800 mb-4 flex items-center gap-2">
+            <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i> Top 5 Ventas ($)
+        </h3>
+        <div id="top-ventas-lista" class="space-y-3"></div>
+    </div>
+</div>
+
         </section>
+<section id="sec-caja" class="section-content hidden">
+    <div id="caja-panel-activo" class="hidden">
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Inicio</p>
+                <p id="caja-val-inicio" class="text-lg font-black"></p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Ingresos (Ventas)</p>
+                <p id="caja-val-ventas" class="text-lg font-black text-green-600"></p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                <p class="text-[10px] text-slate-400 uppercase font-bold">Gastos (Insumos)</p>
+                <p id="caja-val-gastos" class="text-lg font-black text-red-600"></p>
+            </div>
+            <div class="bg-blue-600 p-4 rounded-2xl shadow-lg text-white">
+                <p class="text-[10px] text-blue-200 uppercase font-bold">Efectivo en Caja</p>
+                <p id="caja-val-total" class="text-xl font-black"></p>
+            </div>
+        </div>
+        <button onclick="cerrarCaja()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold">CERRAR CAJA</button>
+    </div>
+
+    <div id="caja-panel-apertura" class="bg-white p-6 rounded-3xl border shadow-sm">
+        <h2 class="text-xl font-bold mb-4">Abrir Caja</h2>
+        <input type="number" id="caja-monto-inicio" placeholder="Monto inicial $" class="w-full p-4 border rounded-2xl mb-4">
+        <button onclick="abrirCaja()" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold">INICIAR DÍA</button>
+    </div>
+
+    <div class="mt-8">
+        <h3 class="font-bold mb-4">Historial de Cierres</h3>
+        <div id="historial-caja" class="space-y-2"></div>
+    </div>
+</section>
+
 
         <section id="sec-sistema" class="section-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,6 +248,9 @@
                     <button onclick="limpiarRegistros()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-red-50 text-red-500 transition-all">
                         <i data-lucide="trash-2" class="w-8 h-8 mb-2"></i>Vaciar Ventas e Insumos
                     </button>
+                    <button onclick="exportarExcel()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-emerald-50 text-emerald-600 transition-all cursor-pointer">
+    <i data-lucide="file-spreadsheet" class="w-8 h-8 mb-2"></i>Exportar a Excel
+</button>
                 </div>
             </div>
         </section>
@@ -217,6 +282,10 @@
     <canvas id="canvas-ticket" width="800" height="1200"></canvas>
 
     <script>
+        // Agrega esta función arriba de todo, junto a tus otras utilidades
+const getHoy = () => new Date().toISOString().split('T')[0]; 
+const aFechaSimple = (iso) => new Date(iso).toISOString().split('T')[0];
+
         // --- UTILIDADES ARGENTINA ---
         const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
         
@@ -258,17 +327,20 @@
         };
 
         function showSection(id) {
-            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById('btn-' + id).classList.add('tab-active');
-            if(id === 'ventas') renderVentaRapida();
-            if(id === 'productos') renderListaProductos();
-            if(id === 'reportes') filtrarReportes();
-            if(id === 'sistema') cargarConfigInputs();
-            lucide.createIcons();
-            window.scrollTo(0,0);
-        }
+    // 1. Ocultar todas las secciones
+    document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+    document.getElementById('sec-' + id).classList.remove('hidden');
+
+    // 2. Quitar clase activa a todos los botones
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
+    // 3. Activar el botón presionado
+    document.getElementById('btn-' + id).classList.add('tab-active');
+
+    // 4. Lógica específica según la sección
+    if (id === 'caja') renderCaja();
+    if (id === 'sistema') cargarConfigInputs();
+}
+
 
         // --- PRODUCTOS ---
         function guardarProducto() {
@@ -346,14 +418,25 @@
         }
 
         function abrirCalculo(id) {
-            productoTemporal = db.productos.find(p => p.id === id);
-            document.getElementById('modal-titulo').innerText = productoTemporal.nombre;
-            document.getElementById('modal-precio-info').innerText = `${fMoneda(productoTemporal.precio)} x KG`;
-            document.getElementById('calc-peso').value = '';
-            document.getElementById('calc-importe').value = '';
-            document.getElementById('modal-calculo').classList.replace('hidden', 'flex');
-            setTimeout(() => document.getElementById('calc-peso').focus(), 150);
-        }
+    productoTemporal = db.productos.find(p => p.id === id);
+    document.getElementById('modal-titulo').innerText = productoTemporal.nombre;
+    document.getElementById('modal-precio-info').innerText = `${fMoneda(productoTemporal.precio)} x KG`;
+    
+    // Reseteamos valores
+    const inputPeso = document.getElementById('calc-peso');
+    const inputImporte = document.getElementById('calc-importe');
+    inputPeso.value = '';
+    inputImporte.value = '';
+    
+    // Abrimos el modal
+    document.getElementById('modal-calculo').classList.replace('hidden', 'flex');
+    
+    // Ponemos el foco en el campo de peso automáticamente
+    setTimeout(() => {
+        inputPeso.focus();
+        window.scrollTo(0, 0);
+    }, 100);
+}
 
         function actualizarCalc(tipo) {
             const precio = productoTemporal.precio;
@@ -405,50 +488,77 @@
         function eliminarDelCarrito(idx) { carrito.splice(idx, 1); renderCarrito(); }
 
         function finalizarVentaProceso() {
-            if(!carrito.length) return alert("Carrito vacío");
-            const venta = { 
-                id: Date.now(), fecha: new Date().toISOString(), 
-                items: [...carrito], total: carrito.reduce((a,b) => a + b.importeFinal, 0) 
-            };
-            db.ventas.push(venta);
-            save();
-            if(confirm("¿Descargar Comprobante?")) generarTicketPNG(venta);
-            carrito = []; renderCarrito();
-        }
+    if(!carrito.length) return alert("Carrito vacío");
+    
+    const venta = { 
+        id: Date.now(), 
+        fecha: new Date().toISOString(), 
+        items: [...carrito], 
+        total: Math.round(carrito.reduce((a,b) => a + b.importeFinal, 0)) 
+    };
+    
+    db.ventas.push(venta);
+    save(); // <--- Aquí ya guardaste los datos
 
-        // --- GASTOS / INSUMOS ---
+    carrito = []; 
+    renderCarrito();
+    
+    renderCaja(); // <--- LLÁMALO AQUÍ: Esto fuerza que la pestaña Caja se actualice al momento
+
+    if(confirm("¿Venta registrada! ¿Descargar Comprobante?")) {
+        generarTicketPNG(venta);
+    }
+}
+
+
         function guardarGasto() {
-            const desc = document.getElementById('g-descripcion').value.trim();
-            const monto = parseFloat(document.getElementById('g-monto').value);
-            if(desc && monto > 0) {
-                db.gastos.push({ fecha: new Date().toISOString(), desc, monto });
-                save(); alert("Insumo registrado para el análisis IA.");
-                document.getElementById('g-descripcion').value = "";
-                document.getElementById('g-monto').value = "";
-            }
-        }
+    const desc = document.getElementById('g-descripcion').value.trim();
+    const monto = parseFloat(document.getElementById('g-monto').value);
+    
+    if(desc && monto > 0) {
+        db.gastos.push({ fecha: new Date().toISOString(), desc, monto });
+        save(); // <--- Aquí ya guardaste el gasto
+        
+        renderCaja(); // <--- LLÁMALO AQUÍ: Esto refresca las tarjetas de Caja al instante
+        
+        alert("Insumo registrado para el análisis IA.");
+        document.getElementById('g-descripcion').value = "";
+        document.getElementById('g-monto').value = "";
+    }
+}
 
-        // --- REPORTES ---
-        // MODIFICACIÓN EN filtrarReportes PARA USAR DATOS HISTÓRICOS REALES
+
 function filtrarReportes() {
     const ini = document.getElementById('f-inicio').value;
     const fin = document.getElementById('f-fin').value;
     const busq = document.getElementById('f-busqueda').value.toLowerCase();
-    let kg = 0, ing = 0, cost = 0, op = 0, html = "";
+    
+    let kg = 0, ing = 0, cost = 0, op = 0;
+    let html = "";
+    
+    // Objetos para estadísticas
+    let statsProductos = {};
+    let listaVentas = []; // Para el top ventas
 
     db.ventas.forEach(v => {
         const d = new Date(v.fecha);
-        const fV = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const fV = d.toISOString().split('T')[0];
         if((ini && fV < ini) || (fin && fV > fin)) return;
         
+        listaVentas.push(v); // Guardamos venta para el top
+
         v.items.forEach(it => {
             if(busq && !it.nombre.toLowerCase().includes(busq)) return;
+            
+            // Cálculos generales
             kg += it.pesoSeleccionado; 
             ing += it.importeFinal;
-            
-            // CAMBIO LÓGICO: Usar el costo grabado en la venta, no el del stock actual
             cost += (it.costoBaseTotal || (it.costo * it.pesoSeleccionado)); 
             op += (it.gastoOpTotal || (it.costoOp * it.pesoSeleccionado));
+            
+            // Estadística Productos
+            if(!statsProductos[it.id]) statsProductos[it.id] = { nombre: it.nombre, kg: 0 };
+            statsProductos[it.id].kg += it.pesoSeleccionado;
             
             html += `<tr class="border-b hover:bg-slate-50">
                 <td class="p-3 text-slate-400">${fSoloFechaArg(v.fecha)}</td>
@@ -460,14 +570,35 @@ function filtrarReportes() {
         });
     });
 
+    // Actualizar KPIs superiores
     document.getElementById('rep-kg').innerText = kg.toFixed(2);
     document.getElementById('rep-ingresos').innerText = fMoneda(ing);
     document.getElementById('rep-costo').innerText = fMoneda(cost);
     document.getElementById('rep-operativo').innerText = fMoneda(op);
     document.getElementById('rep-ganancia').innerText = fMoneda(ing - (cost + op));
-    
     document.getElementById('detalle-ventas-reporte').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
-    // ... resto de la función igual
+
+    // RENDERIZAR DASHBOARDS
+    // 1. Top Productos
+    const topProd = Object.values(statsProductos).sort((a,b) => b.kg - a.kg).slice(0,5);
+    document.getElementById('top-productos-lista').innerHTML = topProd.map(p => `
+        <div class="flex justify-between items-center text-sm border-b pb-2">
+            <span class="font-bold text-slate-700">${p.nombre}</span>
+            <span class="text-blue-600 font-black">${p.kg.toFixed(2)} KG</span>
+        </div>
+    `).join('') || '<p class="text-slate-400 text-xs">Sin datos</p>';
+
+    // 2. Top Ventas
+    const topVentas = listaVentas.sort((a,b) => b.total - a.total).slice(0,5);
+    document.getElementById('top-ventas-lista').innerHTML = topVentas.map(v => `
+        <div class="flex justify-between items-center text-sm border-b pb-2">
+            <span class="text-slate-500 text-[10px] font-mono">#${v.id.toString().slice(-4)}</span>
+            <span class="font-bold text-slate-700">${fSoloFechaArg(v.fecha)}</span>
+            <span class="text-green-600 font-black">${fMoneda(v.total)}</span>
+        </div>
+    `).join('') || '<p class="text-slate-400 text-xs">Sin datos</p>';
+
+    lucide.createIcons(); // Importante: para que los íconos se rendericen
 }
 
 // MEJORA EN finalizarVentaProceso PARA SEGURIDAD DE DATOS
@@ -527,6 +658,51 @@ function finalizarVentaProceso() {
 
         function limpiarRegistros() { if(confirm("¿Borrar historial?")) { db.ventas = []; db.gastos = []; save(); location.reload(); } }
         function cerrarModal() { document.getElementById('modal-calculo').classList.replace('flex', 'hidden'); }
+        
+        function exportarExcel() {
+    // 1. Preparar datos de Ventas
+    const datosVentas = [];
+    db.ventas.forEach(v => {
+        v.items.forEach(it => {
+            datosVentas.push({
+                "ID Venta": v.id,
+                "Fecha": v.fecha,
+                "Producto": it.nombre,
+                "Costo": it.costo || 0,
+                "Gasto Op": it.gastoOp || 0,
+                "Precio": it.precio || 0,
+                "Total": it.importeFinal
+            });
+        });
+    });
+
+    // 2. Preparar datos de Cierres de Caja
+    const historial = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
+    const datosCaja = historial.map(h => ({
+        "Fecha Cierre": h.fecha,
+        "Inicio": h.inicio,
+        "Ventas": h.ventas,
+        "Gastos": h.gastos,
+        "Total Final": h.total
+    }));
+
+    // 3. Crear el libro de trabajo (Workbook)
+    const wb = XLSX.utils.book_new();
+
+    // 4. Convertir datos a hojas
+    const wsVentas = XLSX.utils.json_to_sheet(datosVentas);
+    const wsCaja = XLSX.utils.json_to_sheet(datosCaja);
+
+    // 5. Agregar hojas al libro
+    XLSX.utils.book_append_sheet(wb, wsVentas, "Ventas Detalladas");
+    XLSX.utils.book_append_sheet(wb, wsCaja, "Cierres de Caja");
+
+    // 6. Descargar el archivo
+    XLSX.writeFile(wb, `Reporte_POS_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    alert("Archivo Excel generado con éxito.");
+}
+
 
         // --- TICKET CORREGIDO (ANCHO REAL Y CENTRADO) ---
 function generarTicketPNG(venta) {
@@ -650,6 +826,101 @@ function generarTicketPNG(venta) {
 
 
         window.onload = () => { lucide.createIcons(); renderVentaRapida(); };
+        
+// --- LÓGICA DE CAJA CORREGIDA ---
+function renderCaja() {
+    const hoy = getHoy(); // Usamos nuestro nuevo formato universal
+    const cajaAbierta = localStorage.getItem('pos_caja_abierta') === 'true';
+    const montoInicio = parseFloat(localStorage.getItem('pos_caja_inicio') || 0);
+
+    const panelActivo = document.getElementById('caja-panel-activo');
+    const panelApertura = document.getElementById('caja-panel-apertura');
+
+    if (!cajaAbierta) {
+        panelActivo.classList.add('hidden');
+        panelApertura.classList.remove('hidden');
+    } else {
+        panelActivo.classList.remove('hidden');
+        panelApertura.classList.add('hidden');
+
+        // Filtramos usando el formato unificado YYYY-MM-DD
+        const ventasHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === hoy).reduce((acc, v) => acc + v.total, 0);
+        const gastosHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === hoy).reduce((acc, g) => acc + g.monto, 0);
+        const totalActual = montoInicio + ventasHoy - gastosHoy;
+
+        document.getElementById('caja-val-inicio').innerText = fMoneda(montoInicio);
+        document.getElementById('caja-val-ventas').innerText = fMoneda(ventasHoy);
+        document.getElementById('caja-val-gastos').innerText = fMoneda(gastosHoy);
+        document.getElementById('caja-val-total').innerText = fMoneda(totalActual);
+    }
+    renderHistorialCaja();
+}
+
+function abrirCaja() {
+    const m = parseFloat(document.getElementById('caja-monto-inicio').value);
+    if(isNaN(m)) return alert("Ingresa un monto válido");
+    localStorage.setItem('pos_caja_abierta', 'true');
+    localStorage.setItem('pos_caja_inicio', m);
+    renderCaja();
+}
+
+function cerrarCaja() {
+    const hoy = getHoy();
+    const ventasHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === hoy).reduce((acc, v) => acc + v.total, 0);
+    const gastosHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === hoy).reduce((acc, g) => acc + g.monto, 0);
+    const inicio = parseFloat(localStorage.getItem('pos_caja_inicio'));
+    const final = inicio + ventasHoy - gastosHoy;
+
+    const historial = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
+    historial.unshift({ fecha: hoy, inicio, ventas: ventasHoy, gastos: gastosHoy, total: final });
+    localStorage.setItem('pos_historial_caja', JSON.stringify(historial));
+
+    localStorage.setItem('pos_caja_abierta', 'false');
+    alert("Caja cerrada.");
+    renderCaja();
+}
+
+function renderHistorialCaja() {
+    const h = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
+    const contenedor = document.getElementById('historial-caja');
+    
+    if (!contenedor) return;
+
+    if (h.length === 0) {
+        contenedor.innerHTML = `
+            <div class="text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                <p class="text-slate-400 text-sm font-bold">No hay cierres registrados aún.</p>
+            </div>`;
+        return;
+    }
+
+    contenedor.innerHTML = h.map(item => `
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-3 hover:border-blue-200 transition-colors">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span class="font-black text-slate-800 text-sm tracking-tight">Cierre del ${item.fecha}</span>
+                </div>
+                <span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase tracking-wider">Histórico</span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 text-center border-t border-slate-50 pt-3">
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Inicio</p>
+                    <p class="text-sm font-semibold text-slate-700">${fMoneda(item.inicio)}</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Gastos</p>
+                    <p class="text-sm font-semibold text-red-500">${fMoneda(item.gastos)}</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Total</p>
+                    <p class="text-sm font-black text-blue-600">${fMoneda(item.total)}</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
     </script>
 </body>
 </html>
