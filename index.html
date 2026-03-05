@@ -455,6 +455,9 @@ function obtenerFechaLocal(isoString) {
                 document.getElementById('calc-peso').value = (i / precio).toFixed(3);
             }
         }
+function cerrarModal() {
+    document.getElementById('modal-calculo').classList.replace('flex', 'hidden');
+}
 
         function confirmarAgregarAlCarrito() {
             const peso = parseFloat(document.getElementById('calc-peso').value);
