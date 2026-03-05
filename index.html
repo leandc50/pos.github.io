@@ -730,19 +730,27 @@ function importarDatos(e) {
     const datosVentas = [];
     db.ventas.forEach(v => {
         v.items.forEach(it => {
+            // Usamos || 0 para evitar errores si los datos son antiguos
+            const cBase = it.costoBaseTotal || 0;
+            const cOp = it.gastoOpTotal || 0;
+            const totalReal = cBase + cOp;
+            
             datosVentas.push({
                 "ID Venta": v.id,
                 "Fecha": v.fecha,
                 "Producto": it.nombre,
-                "Costo": it.costo || 0,
-                "Gasto Op": it.gastoOp || 0,
-                "Precio": it.precio || 0,
-                "Total": it.importeFinal
+                "KG Vendidos": it.pesoSeleccionado || 0,
+                "Precio Venta": it.precio || 0,
+                "Costo Base": cBase,
+                "Gasto Op": cOp,
+                "Costo Total Real": totalReal,
+                "Importe Total": it.importeFinal || 0,
+                "Ganancia Neta": (it.importeFinal - totalReal)
             });
         });
     });
 
-    // 2. Preparar datos de Cierres de Caja
+    // 2. Preparar datos de Caja
     const historial = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
     const datosCaja = historial.map(h => ({
         "Fecha Cierre": h.fecha,
@@ -752,22 +760,23 @@ function importarDatos(e) {
         "Total Final": h.total
     }));
 
-    // 3. Crear el libro de trabajo (Workbook)
-    const wb = XLSX.utils.book_new();
+    // 3. Generar Excel
+    try {
+        const wb = XLSX.utils.book_new();
+        const wsVentas = XLSX.utils.json_to_sheet(datosVentas);
+        const wsCaja = XLSX.utils.json_to_sheet(datosCaja);
 
-    // 4. Convertir datos a hojas
-    const wsVentas = XLSX.utils.json_to_sheet(datosVentas);
-    const wsCaja = XLSX.utils.json_to_sheet(datosCaja);
+        XLSX.utils.book_append_sheet(wb, wsVentas, "Ventas Detalladas");
+        XLSX.utils.book_append_sheet(wb, wsCaja, "Cierres de Caja");
 
-    // 5. Agregar hojas al libro
-    XLSX.utils.book_append_sheet(wb, wsVentas, "Ventas Detalladas");
-    XLSX.utils.book_append_sheet(wb, wsCaja, "Cierres de Caja");
-
-    // 6. Descargar el archivo
-    XLSX.writeFile(wb, `Reporte_POS_${new Date().toISOString().split('T')[0]}.xlsx`);
-    
-    alert("Archivo Excel generado con éxito.");
+        XLSX.writeFile(wb, `Reporte_Detallado_${new Date().toISOString().split('T')[0]}.xlsx`);
+        alert("Excel generado con éxito.");
+    } catch (error) {
+        console.error("Error al generar Excel:", error);
+        alert("Hubo un error al generar el archivo. Revisa la consola (F12).");
+    }
 }
+
 
 
         // --- TICKET CORREGIDO (ANCHO REAL Y CENTRADO) ---
