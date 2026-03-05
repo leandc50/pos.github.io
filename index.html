@@ -91,7 +91,7 @@
             </div>
         </section>
 
-        <section id="sec-productos" class="section-content hidden">
+                <section id="sec-productos" class="section-content hidden">
             <div class="bg-white p-6 rounded-3xl shadow-sm border mb-6">
                 <h2 id="titulo-form-prod" class="text-xl font-bold mb-4">Gestión de Producto</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -106,13 +106,19 @@
                     <button onclick="limpiarFormularioProd()" class="flex-1 sm:flex-none bg-slate-100 text-slate-500 px-8 py-3 rounded-xl font-bold hover:bg-slate-200">Cancelar</button>
                 </div>
             </div>
+            
+            <div class="mb-4">
+                <input type="text" id="busqueda-prod" onkeyup="renderListaProductos()" placeholder="🔍 Buscar producto por nombre o ID..." class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
             <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
                 <div class="table-container">
-                    <table class="w-full text-left min-w-[450px]">
+                    <table class="w-full text-left min-w-[500px]">
                         <thead class="bg-slate-50 border-b">
                             <tr class="text-[11px] text-slate-400 uppercase tracking-widest">
                                 <th class="p-4">ID</th>
                                 <th class="p-4">Producto</th>
+                                <th class="p-4 text-center">Costo</th>
                                 <th class="p-4 text-center">Precio</th>
                                 <th class="p-4 text-right">Acciones</th>
                             </tr>
@@ -122,6 +128,7 @@
                 </div>
             </div>
         </section>
+
 
         <section id="sec-gastos" class="section-content hidden">
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border max-w-lg mx-auto">
@@ -398,18 +405,29 @@ function obtenerFechaLocal(isoString) {
             document.getElementById('btn-guardar-prod').innerText = "Guardar";
         }
 
-        function renderListaProductos() {
-            document.getElementById('tabla-productos').innerHTML = db.productos.map(p => `
+                function renderListaProductos() {
+            const busqueda = document.getElementById('busqueda-prod') ? document.getElementById('busqueda-prod').value.toLowerCase() : "";
+            const tabla = document.getElementById('tabla-productos');
+            
+            // Filtra los productos según lo que escribas en el buscador
+            const filtrados = db.productos.filter(p => 
+                p.nombre.toLowerCase().includes(busqueda) || 
+                p.id.toLowerCase().includes(busqueda)
+            );
+
+            tabla.innerHTML = filtrados.map(p => `
                 <tr class="border-b text-xs hover:bg-slate-50">
                     <td class="p-4 font-mono">${p.id}</td>
                     <td class="p-4 font-bold">${p.nombre}</td>
+                    <td class="p-4 text-center text-slate-500">${fMoneda(p.costo || 0)}</td>
                     <td class="p-4 text-center font-black text-blue-600">${fMoneda(p.precio)}</td>
-                    <td class="p-4 text-right">
-                        <button onclick="cargarProductoEdicion('${p.id}')" class="p-2 text-blue-600">✏️</button>
-                        <button onclick="eliminarProducto('${p.id}')" class="p-2 text-red-400">❌</button>
+                    <td class="p-4 text-right flex justify-end gap-2">
+                        <button onclick="cargarProductoEdicion('${p.id}')" class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">Editar</button>
+                        <button onclick="eliminarProducto('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg hover:bg-red-100">Borrar</button>
                     </td>
                 </tr>`).join('');
         }
+
 
         function eliminarProducto(id) { if(confirm("¿Eliminar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); } }
 
@@ -663,11 +681,31 @@ function finalizarVentaProceso() {
             a.download = `DATA_IA_POS_${fSoloFechaArg(new Date().toISOString())}.json`; a.click();
         }
 
-        function importarDatos(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { db = JSON.parse(ev.target.result); save(); location.reload(); };
-            reader.readAsText(e.target.files[0]);
+        // BUSCA ESTA FUNCIÓN Y REEMPLÁZALA COMPLETAMENTE
+function importarDatos(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        try {
+            const datosImportados = JSON.parse(ev.target.result);
+            // Validamos que el archivo tenga al menos los objetos principales
+            if (datosImportados.productos && datosImportados.ventas) {
+                db = datosImportados;
+                save();
+                alert("Datos importados correctamente. La página se recargará.");
+                location.reload();
+            } else {
+                alert("Error: El archivo no parece ser un respaldo válido de POSV.1.");
+            }
+        } catch (error) {
+            alert("Error crítico: El archivo está dañado o no es un JSON válido.");
         }
+    };
+    reader.readAsText(file);
+}
+
 
         function limpiarRegistros() {
     if(confirm("¿Estás seguro de borrar todas las ventas, gastos y resetear el estado de la Caja?")) {
@@ -853,8 +891,9 @@ function generarTicketPNG(venta) {
 }
 
 
-        window.onload = () => { lucide.createIcons(); renderVentaRapida(); };
-        
+                window.onload = () => { lucide.createIcons(); renderVentaRapida(); renderListaProductos(); };
+
+                
 function renderCaja() {
     const hoy = getHoy(); // Usamos nuestro nuevo formato universal
     const cajaAbierta = localStorage.getItem('pos_caja_abierta') === 'true';
