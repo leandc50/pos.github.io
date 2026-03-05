@@ -288,7 +288,15 @@ const aFechaSimple = (iso) => new Date(iso).toISOString().split('T')[0];
 
         // --- UTILIDADES ARGENTINA ---
         const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
-        
+        // Esta función extrae la fecha real según tu reloj local (Argentina)
+function obtenerFechaLocal(isoString) {
+    const d = new Date(isoString);
+    const anio = d.getFullYear();
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const dia = String(d.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+}
+
         const fFechaCompletaArg = (iso) => {
             return new Date(iso).toLocaleString('es-AR', { 
                 timeZone: 'America/Argentina/Buenos_Aires',
@@ -541,9 +549,12 @@ function filtrarReportes() {
     let listaVentas = []; // Para el top ventas
 
     db.ventas.forEach(v => {
-        const d = new Date(v.fecha);
-        const fV = d.toISOString().split('T')[0];
-        if((ini && fV < ini) || (fin && fV > fin)) return;
+    // CAMBIO AQUÍ: Usamos obtenerFechaLocal en lugar de split
+    const fV = obtenerFechaLocal(v.fecha); 
+    
+    if((ini && fV < ini) || (fin && fV > fin)) return;
+    // ... resto del código
+;
         
         listaVentas.push(v); // Guardamos venta para el top
 
@@ -827,7 +838,6 @@ function generarTicketPNG(venta) {
 
         window.onload = () => { lucide.createIcons(); renderVentaRapida(); };
         
-// --- LÓGICA DE CAJA CORREGIDA ---
 function renderCaja() {
     const hoy = getHoy(); // Usamos nuestro nuevo formato universal
     const cajaAbierta = localStorage.getItem('pos_caja_abierta') === 'true';
@@ -843,16 +853,19 @@ function renderCaja() {
         panelActivo.classList.remove('hidden');
         panelApertura.classList.add('hidden');
 
-        // Filtramos usando el formato unificado YYYY-MM-DD
+        // 1. Filtramos usando el formato unificado YYYY-MM-DD
         const ventasHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === hoy).reduce((acc, v) => acc + v.total, 0);
         const gastosHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === hoy).reduce((acc, g) => acc + g.monto, 0);
         const totalActual = montoInicio + ventasHoy - gastosHoy;
 
+        // 2. MOSTRAR LOS DATOS EN LA PANTALLA (Esto es lo que te falta)
         document.getElementById('caja-val-inicio').innerText = fMoneda(montoInicio);
         document.getElementById('caja-val-ventas').innerText = fMoneda(ventasHoy);
         document.getElementById('caja-val-gastos').innerText = fMoneda(gastosHoy);
         document.getElementById('caja-val-total').innerText = fMoneda(totalActual);
     }
+    
+    // 3. ACTUALIZAR EL HISTORIAL DE CIERRES
     renderHistorialCaja();
 }
 
