@@ -17,18 +17,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #canvas-ticket { display: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        /* Ajuste para que las tablas no rompan el layout en móviles */
         .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        #modal-calculo {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
-}
-
+        #modal-calculo { position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">
@@ -47,18 +37,16 @@
             <button onclick="showSection('reportes')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-reportes">
                 <i data-lucide="bar-chart-big" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Reportes</span>
             </button>
-            <button       onclick="showSection('caja')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-caja">
-    <i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Caja</span>
-</button>
-<button
-             onclick="showSection('sistema')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-sistema">
+            <button onclick="showSection('caja')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-caja">
+                <i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Caja</span>
+            </button>
+            <button onclick="showSection('sistema')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-sistema">
                 <i data-lucide="settings-2" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Sistema</span>
             </button>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto p-4 pb-20 w-full overflow-x-hidden">
-        
         <section id="sec-ventas" class="section-content">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
@@ -71,7 +59,6 @@
                     </div>
                     <div id="grid-productos-venta" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
                 </div>
-
                 <div class="bg-white p-5 rounded-3xl shadow-xl border h-fit lg:sticky lg:top-24">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold">Carrito</h2>
@@ -91,36 +78,30 @@
             </div>
         </section>
 
-                <section id="sec-productos" class="section-content hidden">
+        <section id="sec-productos" class="section-content hidden">
             <div class="bg-white p-6 rounded-3xl shadow-sm border mb-6">
                 <h2 id="titulo-form-prod" class="text-xl font-bold mb-4">Gestión de Producto</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <input type="text" id="p-id" placeholder="ID (Ejem: 001)" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
-                    <input type="text" id="p-nombre" placeholder="Nombre" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
-                    <input type="number" id="p-costo" placeholder="Costo Unit." step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
-                    <input type="number" id="p-costo-op" placeholder="Costo Op." step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
-                    <input type="number" id="p-precio" placeholder="P. Venta" step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <input type="text" id="p-id" placeholder="ID" class="p-3 bg-slate-50 border rounded-xl outline-none w-full">
+                    <input type="text" id="p-nombre" placeholder="Nombre" class="p-3 bg-slate-50 border rounded-xl outline-none w-full">
+                    <input type="number" id="p-costo" placeholder="Costo Unit." step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none w-full">
+                    <input type="number" id="p-costo-op" placeholder="Costo Op." step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none w-full">
+                    <input type="number" id="p-precio" placeholder="P. Venta" step="0.01" class="p-3 bg-slate-50 border rounded-xl outline-none w-full">
                 </div>
                 <div class="flex gap-2 mt-6">
-                    <button id="btn-guardar-prod" onclick="guardarProducto()" class="flex-1 sm:flex-none bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">Guardar</button>
-                    <button onclick="limpiarFormularioProd()" class="flex-1 sm:flex-none bg-slate-100 text-slate-500 px-8 py-3 rounded-xl font-bold hover:bg-slate-200">Cancelar</button>
+                    <button id="btn-guardar-prod" onclick="guardarProducto()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700">Guardar</button>
+                    <button onclick="limpiarFormularioProd()" class="bg-slate-100 text-slate-500 px-8 py-3 rounded-xl font-bold">Cancelar</button>
                 </div>
             </div>
-            
             <div class="mb-4">
-                <input type="text" id="busqueda-prod" onkeyup="renderListaProductos()" placeholder="🔍 Buscar producto por nombre o ID..." class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="busqueda-prod" onkeyup="renderListaProductos()" placeholder="🔍 Buscar producto..." class="w-full p-4 border rounded-2xl outline-none">
             </div>
-
             <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
                 <div class="table-container">
                     <table class="w-full text-left min-w-[500px]">
                         <thead class="bg-slate-50 border-b">
                             <tr class="text-[11px] text-slate-400 uppercase tracking-widest">
-                                <th class="p-4">ID</th>
-                                <th class="p-4">Producto</th>
-                                <th class="p-4 text-center">Costo</th>
-                                <th class="p-4 text-center">Precio</th>
-                                <th class="p-4 text-right">Acciones</th>
+                                <th class="p-4">ID</th><th class="p-4">Producto</th><th class="p-4 text-center">Costo</th><th class="p-4 text-center">Precio</th><th class="p-4 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-productos"></tbody>
@@ -129,45 +110,32 @@
             </div>
         </section>
 
-
         <section id="sec-gastos" class="section-content hidden">
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border max-w-lg mx-auto">
                 <h2 class="text-2xl font-black mb-6 text-orange-500">Registro de Insumos</h2>
-                <p class="text-xs text-slate-400 mb-4">Usa esta sección para registrar compras de materia prima. Estos datos se guardan para análisis de IA en el JSON.</p>
                 <div class="space-y-4">
-                    <input type="text" id="g-descripcion" placeholder="Ej: Bolsa Harina 50kg, 10L Aceite" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:ring-2 focus:ring-orange-500">
-                    <input type="number" id="g-monto" placeholder="Costo de compra $" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none focus:ring-2 focus:ring-orange-500">
-                    <button onclick="guardarGasto()" class="w-full bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-2xl font-bold shadow-lg transition-colors">Registrar para Análisis</button>
+                    <input type="text" id="g-descripcion" placeholder="Descripción" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none">
+                    <input type="number" id="g-monto" placeholder="Costo $" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none">
+                    <button onclick="guardarGasto()" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-bold shadow-lg">Registrar</button>
                 </div>
             </div>
         </section>
 
         <section id="sec-reportes" class="section-content hidden">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6 text-center">
-                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Kg Vendidos</p><p id="rep-kg" class="text-base font-black">0</p></div>
-                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Ingresos</p><p id="rep-ingresos" class="text-base font-black text-blue-600">$0</p></div>
-                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Costo Prod.</p><p id="rep-costo" class="text-base font-black text-red-400">$0</p></div>
-                <div class="bg-white p-3 rounded-2xl border"><p class="text-[9px] font-bold text-slate-400 uppercase">Costo Op.</p><p id="rep-operativo" class="text-base font-black text-orange-400">$0</p></div>
-                <div class="bg-green-600 p-3 rounded-2xl text-white font-bold col-span-2 md:col-span-1"><p class="text-[9px] uppercase">Ganancia Neta</p><p id="rep-ganancia" class="text-base font-black">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Kg Vendidos</p><p id="rep-kg">0</p></div>
+                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Ingresos</p><p id="rep-ingresos" class="text-blue-600">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Costo Prod.</p><p id="rep-costo" class="text-red-400">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Costo Op.</p><p id="rep-operativo" class="text-orange-400">$0</p></div>
+                <div class="bg-green-600 p-3 rounded-2xl text-white font-bold col-span-2 md:col-span-1"><p>Ganancia Neta</p><p id="rep-ganancia">$0</p></div>
             </div>
-            
             <div class="bg-white p-4 rounded-2xl border mb-6 flex flex-col sm:flex-row gap-4 items-end">
-                <div class="w-full">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Buscar Producto</label>
-                    <input type="text" id="f-busqueda" placeholder="Nombre..." class="w-full p-2 border rounded-lg text-sm outline-none">
-                </div>
-                <div class="w-full">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Desde</label>
-                    <input type="date" id="f-inicio" class="w-full p-2 border rounded-lg text-sm outline-none">
-                </div>
-                <div class="w-full">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Hasta</label>
-                    <input type="date" id="f-fin" class="w-full p-2 border rounded-lg text-sm outline-none">
-                </div>
-                <button onclick="filtrarReportes()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg font-bold">Filtrar</button>
+                <input type="text" id="f-busqueda" placeholder="Buscar..." class="w-full p-2 border rounded-lg text-sm">
+                <input type="date" id="f-inicio" class="w-full p-2 border rounded-lg text-sm">
+                <input type="date" id="f-fin" class="w-full p-2 border rounded-lg text-sm">
+                <button onclick="filtrarReportes()" class="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold">Filtrar</button>
             </div>
-
-            <div class="bg-white rounded-3xl border overflow-hidden mb-6">
+            <div class="bg-white rounded-3xl border overflow-hidden">
                 <div class="table-container">
                     <table class="w-full text-xs text-left min-w-[500px]">
                         <thead class="bg-slate-50 border-b text-slate-400">
@@ -177,158 +145,76 @@
                     </table>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-    <div class="bg-white p-6 rounded-3xl border shadow-sm">
-        <h3 class="font-black text-slate-800 mb-4 flex items-center gap-2">
-            <i data-lucide="award" class="w-5 h-5 text-yellow-500"></i> Top 5 Productos (KG)
-        </h3>
-        <div id="top-productos-lista" class="space-y-3"></div>
-    </div>
-    
-    <div class="bg-white p-6 rounded-3xl border shadow-sm">
-        <h3 class="font-black text-slate-800 mb-4 flex items-center gap-2">
-            <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i> Top 5 Ventas ($)
-        </h3>
-        <div id="top-ventas-lista" class="space-y-3"></div>
-    </div>
-</div>
-
         </section>
-<section id="sec-caja" class="section-content hidden">
-    <div id="caja-panel-activo" class="hidden">
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-white p-4 rounded-2xl border shadow-sm">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Inicio</p>
-                <p id="caja-val-inicio" class="text-lg font-black"></p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border shadow-sm">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Ingresos (Ventas)</p>
-                <p id="caja-val-ventas" class="text-lg font-black text-green-600"></p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border shadow-sm">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Gastos (Insumos)</p>
-                <p id="caja-val-gastos" class="text-lg font-black text-red-600"></p>
-            </div>
-            <div class="bg-blue-600 p-4 rounded-2xl shadow-lg text-white">
-                <p class="text-[10px] text-blue-200 uppercase font-bold">Efectivo en Caja</p>
-                <p id="caja-val-total" class="text-xl font-black"></p>
-            </div>
-        </div>
-        <button onclick="cerrarCaja()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold">CERRAR CAJA</button>
-    </div>
 
-    <div id="caja-panel-apertura" class="bg-white p-6 rounded-3xl border shadow-sm">
-        <h2 class="text-xl font-bold mb-4">Abrir Caja</h2>
-        <input type="number" id="caja-monto-inicio" placeholder="Monto inicial $" class="w-full p-4 border rounded-2xl mb-4">
-        <button onclick="abrirCaja()" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold">INICIAR DÍA</button>
-    </div>
-
-    <div class="mt-8">
-        <h3 class="font-bold mb-4">Historial de Cierres</h3>
-        <div id="historial-caja" class="space-y-2"></div>
-    </div>
-</section>
-
+        <section id="sec-caja" class="section-content hidden">
+            <div id="caja-panel-activo" class="hidden">
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">INICIO</p><p id="caja-val-inicio" class="text-lg font-black"></p></div>
+                    <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">VENTAS</p><p id="caja-val-ventas" class="text-lg font-black text-green-600"></p></div>
+                    <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">GASTOS</p><p id="caja-val-gastos" class="text-lg font-black text-red-600"></p></div>
+                    <div class="bg-blue-600 p-4 rounded-2xl text-white"><p class="text-[10px] text-blue-200 font-bold">TOTAL EFECTIVO</p><p id="caja-val-total" class="text-xl font-black"></p></div>
+                </div>
+                <button onclick="cerrarCajaBoton()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold">CERRAR CAJA</button>
+            </div>
+            <div id="caja-panel-apertura" class="bg-white p-6 rounded-3xl border shadow-sm">
+                <h2 class="text-xl font-bold mb-4">Abrir Caja</h2>
+                <input type="number" id="caja-monto-inicio" placeholder="Monto inicial $" class="w-full p-4 border rounded-2xl mb-4">
+                <button onclick="abrirCaja()" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold">INICIAR DÍA</button>
+            </div>
+            <div class="mt-8">
+                <h3 class="font-bold mb-4">Historial de Cierres</h3>
+                <div id="historial-caja" class="space-y-2"></div>
+            </div>
+        </section>
 
         <section id="sec-sistema" class="section-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-3xl border shadow-sm">
-                    <h3 class="font-bold mb-4 flex items-center gap-2 text-blue-600"><i data-lucide="image"></i> Configuración Ticket</h3>
+                <div class="bg-white p-6 rounded-3xl border">
+                    <h3 class="font-bold mb-4 text-blue-600">Ticket</h3>
                     <div class="space-y-3">
-                        <input type="text" id="conf-titulo" placeholder="Nombre del Comercio" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                        <textarea id="conf-cabecera" placeholder="Dirección / WhatsApp" class="w-full p-3 border rounded-xl h-20 outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        <input type="text" id="conf-pie1" placeholder="Mensaje de Despedida" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="text" id="conf-pie2" placeholder="Nota adicional" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="guardarConfig()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">Guardar Configuración</button>
+                        <input type="text" id="conf-titulo" placeholder="Nombre" class="w-full p-3 border rounded-xl">
+                        <textarea id="conf-cabecera" placeholder="Cabecera" class="w-full p-3 border rounded-xl h-20"></textarea>
+                        <input type="text" id="conf-pie1" placeholder="Pie 1" class="w-full p-3 border rounded-xl">
+                        <input type="text" id="conf-pie2" placeholder="Pie 2" class="w-full p-3 border rounded-xl">
+                        <button onclick="guardarConfig()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">Guardar</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 gap-4 text-xs font-bold uppercase">
-                    <button onclick="exportarDatos()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-blue-50 transition-all">
-                        <i data-lucide="download-cloud" class="w-8 h-8 text-blue-500 mb-2"></i>Exportar JSON para IA
-                    </button>
-                    <div class="bg-white border p-6 rounded-3xl flex flex-col items-center relative hover:bg-green-50 transition-all cursor-pointer">
-                        <i data-lucide="upload-cloud" class="w-8 h-8 text-green-500 mb-2"></i>Importar Respaldo
-                        <input type="file" onchange="importarDatos(event)" class="absolute inset-0 opacity-0 cursor-pointer">
-                    </div>
-                    <button onclick="limpiarRegistros()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-red-50 text-red-500 transition-all">
-                        <i data-lucide="trash-2" class="w-8 h-8 mb-2"></i>Vaciar Ventas e Insumos
-                    </button>
-                    <button onclick="exportarExcel()" class="bg-white border p-6 rounded-3xl flex flex-col items-center hover:bg-emerald-50 text-emerald-600 transition-all cursor-pointer">
-    <i data-lucide="file-spreadsheet" class="w-8 h-8 mb-2"></i>Exportar a Excel
-</button>
+                    <button onclick="exportarDatos()" class="bg-white border p-6 rounded-3xl flex flex-col items-center"><i data-lucide="download-cloud" class="mb-2"></i>Exportar JSON</button>
+                    <div class="bg-white border p-6 rounded-3xl flex flex-col items-center relative cursor-pointer"><i data-lucide="upload-cloud" class="mb-2"></i>Importar Respaldo<input type="file" onchange="importarDatos(event)" class="absolute inset-0 opacity-0 cursor-pointer"></div>
+                    <button onclick="limpiarRegistros()" class="bg-white border p-6 rounded-3xl text-red-500"><i data-lucide="trash-2" class="mb-2 mx-auto"></i>Borrar Todo</button>
+                    <button onclick="exportarExcel()" class="bg-white border p-6 rounded-3xl text-emerald-600"><i data-lucide="file-spreadsheet" class="mb-2 mx-auto"></i>Exportar Excel</button>
                 </div>
             </div>
         </section>
-
     </main>
 
     <div id="modal-calculo" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center p-4 z-[100] backdrop-blur-sm">
-        <div class="bg-white rounded-[2rem] p-6 w-full max-w-[95%] sm:max-w-sm shadow-2xl">
-            <h3 id="modal-titulo" class="text-2xl font-black text-slate-800 mb-1"></h3>
+        <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm">
+            <h3 id="modal-titulo" class="text-2xl font-black mb-1"></h3>
             <p id="modal-precio-info" class="text-blue-600 font-bold mb-6 text-sm"></p>
             <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Peso (KG)</label>
-                    <input type="number" id="calc-peso" oninput="actualizarCalc('peso')" step="0.001" class="w-full text-3xl sm:text-4xl p-4 bg-slate-50 border-2 rounded-3xl outline-none font-black" placeholder="0.000">
-                </div>
-                <div class="relative flex items-center justify-center"><div class="h-[1px] bg-slate-200 w-full absolute"></div><span class="bg-white px-4 relative text-slate-400 font-bold text-[10px] uppercase">O</span></div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Importe ($)</label>
-                    <input type="number" id="calc-importe" oninput="actualizarCalc('importe')" step="0.01" class="w-full text-3xl sm:text-4xl p-4 bg-slate-50 border-2 rounded-3xl outline-none font-black" placeholder="0.00">
-                </div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Peso (KG)</label><input type="number" id="calc-peso" oninput="actualizarCalc('peso')" step="0.001" class="w-full text-3xl p-4 bg-slate-50 border-2 rounded-3xl font-black outline-none"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Importe ($)</label><input type="number" id="calc-importe" oninput="actualizarCalc('importe')" step="0.01" class="w-full text-3xl p-4 bg-slate-50 border-2 rounded-3xl font-black outline-none"></div>
                 <div class="flex gap-3 pt-4">
-                    <button onclick="cerrarModal()" class="flex-1 py-4 font-bold text-slate-400">Cerrar</button>
-                    <button onclick="confirmarAgregarAlCarrito()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-3xl hover:bg-blue-700 active:scale-95 transition-all">AGREGAR</button>
+                    <button onclick="cerrarModal()" class="flex-1 font-bold text-slate-400">Cerrar</button>
+                    <button onclick="confirmarAgregarAlCarrito()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-3xl">AGREGAR</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <canvas id="canvas-ticket" width="800" height="1200"></canvas>
+    <canvas id="canvas-ticket" width="600" height="1000"></canvas>
 
     <script>
-const getHoy = () => obtenerFechaLocal(new Date().toISOString()); 
-const aFechaSimple = (iso) => obtenerFechaLocal(iso);
-
-
-        // --- UTILIDADES ARGENTINA ---
-        const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
-        // Esta función extrae la fecha real según tu reloj local (Argentina)
-function obtenerFechaLocal(isoString) {
-    const d = new Date(isoString);
-    const anio = d.getFullYear();
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
-    const dia = String(d.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
-}
-
-        const fFechaCompletaArg = (iso) => {
-            return new Date(iso).toLocaleString('es-AR', { 
-                timeZone: 'America/Argentina/Buenos_Aires',
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        };
-
-        const fSoloFechaArg = (iso) => {
-            return new Date(iso).toLocaleDateString('es-AR', { 
-                timeZone: 'America/Argentina/Buenos_Aires',
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            });
-        };
-
-        // --- DB CORE ---
+        // --- DATA & CORE ---
         let db = {
             productos: JSON.parse(localStorage.getItem('pos_v121_prod')) || [],
             ventas: JSON.parse(localStorage.getItem('pos_v121_ventas')) || [],
             gastos: JSON.parse(localStorage.getItem('pos_v121_gastos')) || [],
-            config: JSON.parse(localStorage.getItem('pos_v121_conf')) || { 
-                titulo: 'MI NEGOCIO', cabecera: 'Dir. Comercial\nTel: 123456', 
-                pie1: 'Gracias por su compra', pie2: 'IVA Responsable Insc.' 
-            }
+            config: JSON.parse(localStorage.getItem('pos_v121_conf')) || { titulo: 'MI NEGOCIO', cabecera: 'Dir. Comercial', pie1: 'Gracias', pie2: 'IVA RI' }
         };
-
         let carrito = [];
         let productoTemporal = null;
         let editandoId = null;
@@ -340,21 +226,23 @@ function obtenerFechaLocal(isoString) {
             localStorage.setItem('pos_v121_conf', JSON.stringify(db.config));
         };
 
+        // --- UTILIDADES ---
+        const obtenerFechaLocal = (iso) => new Date(iso).toISOString().split('T')[0];
+        const getHoy = () => obtenerFechaLocal(new Date().toISOString());
+        const aFechaSimple = (iso) => obtenerFechaLocal(iso);
+        const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
+        const fFechaCompletaArg = (iso) => new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+
+        // --- NAVEGACIÓN ---
         function showSection(id) {
-    // 1. Ocultar todas las secciones
-    document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
-    document.getElementById('sec-' + id).classList.remove('hidden');
-
-    // 2. Quitar clase activa a todos los botones
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
-    // 3. Activar el botón presionado
-    document.getElementById('btn-' + id).classList.add('tab-active');
-
-    // 4. Lógica específica según la sección
-    if (id === 'caja') renderCaja();
-    if (id === 'sistema') cargarConfigInputs();
-}
-
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById('btn-' + id).classList.add('tab-active');
+            if (id === 'caja') renderCaja();
+            if (id === 'sistema') cargarConfigInputs();
+            lucide.createIcons();
+        }
 
         // --- PRODUCTOS ---
         function guardarProducto() {
@@ -363,642 +251,166 @@ function obtenerFechaLocal(isoString) {
             const costo = parseFloat(document.getElementById('p-costo').value) || 0;
             const costoOp = parseFloat(document.getElementById('p-costo-op').value) || 0;
             const precio = parseFloat(document.getElementById('p-precio').value) || 0;
-
             if(!id || !nombre || precio <= 0) return alert("Complete los campos.");
-
-            const prodData = { id, nombre, costo, costoOp, precio };
             const idx = db.productos.findIndex(p => p.id === id);
-
-            if (editandoId === null && idx > -1) return alert("Ese ID ya existe.");
-
-            if (idx > -1) db.productos[idx] = prodData;
-            else db.productos.push(prodData);
-
+            if (editandoId === null && idx > -1) return alert("ID existente.");
+            const pData = { id, nombre, costo, costoOp, precio };
+            if (idx > -1) db.productos[idx] = pData; else db.productos.push(pData);
             save(); limpiarFormularioProd(); renderListaProductos();
-            alert("Producto guardado.");
         }
 
-        function cargarProductoEdicion(id) {
-            const p = db.productos.find(prod => prod.id === id);
-            if(!p) return;
-            editandoId = id;
-            document.getElementById('p-id').value = p.id;
-            document.getElementById('p-id').readOnly = true;
-            document.getElementById('p-nombre').value = p.nombre;
-            document.getElementById('p-costo').value = p.costo;
-            document.getElementById('p-costo-op').value = p.costoOp;
-            document.getElementById('p-precio').value = p.precio;
-            document.getElementById('titulo-form-prod').innerText = "Editando: " + p.nombre;
-            document.getElementById('btn-guardar-prod').innerText = "Actualizar";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function renderListaProductos() {
+            const b = document.getElementById('busqueda-prod').value.toLowerCase();
+            const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
+            document.getElementById('tabla-productos').innerHTML = f.map(p => `
+                <tr class="border-b text-xs"><td class="p-4">${p.id}</td><td class="p-4 font-bold">${p.nombre}</td>
+                <td class="p-4 text-center">${fMoneda(p.costo)}</td><td class="p-4 text-center font-black">${fMoneda(p.precio)}</td>
+                <td class="p-4 text-right flex gap-2 justify-end">
+                    <button onclick="cargarProductoEdicion('${p.id}')" class="p-2 bg-blue-50 text-blue-600 rounded">Editar</button>
+                    <button onclick="eliminarProducto('${p.id}')" class="p-2 bg-red-50 text-red-500 rounded">Borrar</button>
+                </td></tr>`).join('');
         }
 
-        function limpiarFormularioProd() {
-            editandoId = null;
-            document.getElementById('p-id').value = "";
-            document.getElementById('p-id').readOnly = false;
-            document.getElementById('p-nombre').value = "";
-            document.getElementById('p-costo').value = "";
-            document.getElementById('p-costo-op').value = "";
-            document.getElementById('p-precio').value = "";
-            document.getElementById('titulo-form-prod').innerText = "Gestión de Producto";
-            document.getElementById('btn-guardar-prod').innerText = "Guardar";
-        }
-
-                function renderListaProductos() {
-            const busqueda = document.getElementById('busqueda-prod') ? document.getElementById('busqueda-prod').value.toLowerCase() : "";
-            const tabla = document.getElementById('tabla-productos');
-            
-            // Filtra los productos según lo que escribas en el buscador
-            const filtrados = db.productos.filter(p => 
-                p.nombre.toLowerCase().includes(busqueda) || 
-                p.id.toLowerCase().includes(busqueda)
-            );
-
-            tabla.innerHTML = filtrados.map(p => `
-                <tr class="border-b text-xs hover:bg-slate-50">
-                    <td class="p-4 font-mono">${p.id}</td>
-                    <td class="p-4 font-bold">${p.nombre}</td>
-                    <td class="p-4 text-center text-slate-500">${fMoneda(p.costo || 0)}</td>
-                    <td class="p-4 text-center font-black text-blue-600">${fMoneda(p.precio)}</td>
-                    <td class="p-4 text-right flex justify-end gap-2">
-                        <button onclick="cargarProductoEdicion('${p.id}')" class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">Editar</button>
-                        <button onclick="eliminarProducto('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg hover:bg-red-100">Borrar</button>
-                    </td>
-                </tr>`).join('');
-        }
-
-
-        function eliminarProducto(id) { if(confirm("¿Eliminar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); } }
+        function eliminarProducto(id) { if(confirm("¿Borrar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); } }
+        function limpiarFormularioProd() { editandoId = null; document.getElementById('p-id').value = ""; document.getElementById('p-nombre').value = ""; document.getElementById('p-costo').value = ""; document.getElementById('p-costo-op').value = ""; document.getElementById('p-precio').value = ""; document.getElementById('titulo-form-prod').innerText = "Gestión"; }
+        function cargarProductoEdicion(id) { const p = db.productos.find(x => x.id === id); if(!p) return; editandoId = id; document.getElementById('p-id').value = p.id; document.getElementById('p-nombre').value = p.nombre; document.getElementById('p-costo').value = p.costo; document.getElementById('p-costo-op').value = p.costoOp; document.getElementById('p-precio').value = p.precio; document.getElementById('titulo-form-prod').innerText = "Editando: " + p.nombre; window.scrollTo(0,0); }
 
         // --- VENTAS ---
         function renderVentaRapida() {
             const b = document.getElementById('busqueda-venta').value.toLowerCase();
-            const filtrados = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
-            document.getElementById('grid-productos-venta').innerHTML = filtrados.map(p => `
-                <button onclick="abrirCalculo('${p.id}')" class="bg-white p-4 rounded-3xl border shadow-sm text-center active:scale-95 transition-all hover:border-blue-300">
-                    <p class="font-extrabold text-sm mb-1 line-clamp-2">${p.nombre}</p>
-                    <p class="text-blue-600 font-black text-xs">${fMoneda(p.precio)}</p>
+            const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
+            document.getElementById('grid-productos-venta').innerHTML = f.map(p => `
+                <button onclick="abrirCalculo('${p.id}')" class="bg-white p-4 rounded-3xl border text-center shadow-sm">
+                    <p class="font-extrabold text-sm mb-1">${p.nombre}</p><p class="text-blue-600 font-black text-xs">${fMoneda(p.precio)}</p>
                 </button>`).join('');
         }
 
-        function abrirCalculo(id) {
-    productoTemporal = db.productos.find(p => p.id === id);
-    document.getElementById('modal-titulo').innerText = productoTemporal.nombre;
-    document.getElementById('modal-precio-info').innerText = `${fMoneda(productoTemporal.precio)} x KG`;
-    
-    // Reseteamos valores
-    const inputPeso = document.getElementById('calc-peso');
-    const inputImporte = document.getElementById('calc-importe');
-    inputPeso.value = '';
-    inputImporte.value = '';
-    
-    // Abrimos el modal
-    document.getElementById('modal-calculo').classList.replace('hidden', 'flex');
-    
-    // Ponemos el foco en el campo de peso automáticamente
-    setTimeout(() => {
-        inputPeso.focus();
-        window.scrollTo(0, 0);
-    }, 100);
-}
-
-        function actualizarCalc(tipo) {
-            const precio = productoTemporal.precio;
-            if(tipo === 'peso') {
-                const p = parseFloat(document.getElementById('calc-peso').value) || 0;
-                document.getElementById('calc-importe').value = (p * precio).toFixed(2);
-            } else {
-                const i = parseFloat(document.getElementById('calc-importe').value) || 0;
-                document.getElementById('calc-peso').value = (i / precio).toFixed(3);
-            }
-        }
-function cerrarModal() {
-    document.getElementById('modal-calculo').classList.replace('flex', 'hidden');
-}
+        function abrirCalculo(id) { productoTemporal = db.productos.find(p => p.id === id); document.getElementById('modal-titulo').innerText = productoTemporal.nombre; document.getElementById('modal-precio-info').innerText = fMoneda(productoTemporal.precio) + " x KG"; document.getElementById('calc-peso').value = ""; document.getElementById('calc-importe').value = ""; document.getElementById('modal-calculo').classList.replace('hidden', 'flex'); setTimeout(()=>document.getElementById('calc-peso').focus(), 100); }
+        function cerrarModal() { document.getElementById('modal-calculo').classList.replace('flex', 'hidden'); }
+        function actualizarCalc(t) { const pr = productoTemporal.precio; if(t === 'peso') { const p = parseFloat(document.getElementById('calc-peso').value) || 0; document.getElementById('calc-importe').value = (p * pr).toFixed(2); } else { const i = parseFloat(document.getElementById('calc-importe').value) || 0; document.getElementById('calc-peso').value = (i / pr).toFixed(3); } }
 
         function confirmarAgregarAlCarrito() {
-            const peso = parseFloat(document.getElementById('calc-peso').value);
-            const importe = parseFloat(document.getElementById('calc-importe').value);
-            if(peso > 0) {
-                // CORRECCIÓN: Cálculo de desglose exacto para que figure en el JSON exportado
-                const costoBaseCalculado = productoTemporal.costo * peso;
-                const gastoOpCalculado = productoTemporal.costoOp * peso;
-                const costoTotalCalculado = costoBaseCalculado + gastoOpCalculado;
-
-                carrito.push({ 
-                    ...productoTemporal, 
-                    pesoSeleccionado: peso, 
-                    importeFinal: importe, 
-                    costoBaseTotal: costoBaseCalculado,
-                    gastoOpTotal: gastoOpCalculado,
-                    costoTotalReal: costoTotalCalculado,
-                    idUnico: Date.now() 
-                });
+            const p = parseFloat(document.getElementById('calc-peso').value);
+            const i = parseFloat(document.getElementById('calc-importe').value);
+            if(p > 0) {
+                carrito.push({ ...productoTemporal, pesoSeleccionado: p, importeFinal: i, costoBaseTotal: productoTemporal.costo * p, gastoOpTotal: productoTemporal.costoOp * p, idUnico: Date.now() });
                 renderCarrito(); cerrarModal();
             }
         }
 
         function renderCarrito() {
-            let total = 0;
-            document.getElementById('carrito-items').innerHTML = carrito.map((it, i) => {
-                total += it.importeFinal;
-                return `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl text-xs border border-slate-100">
-                    <div class="flex-1 min-w-0 pr-2"><p class="font-bold truncate">${it.nombre}</p><p class="text-[9px] text-slate-400">${it.pesoSeleccionado.toFixed(3)} KG x ${fMoneda(it.precio)}</p></div>
-                    <div class="text-right flex-shrink-0"><p class="font-black text-blue-600">${fMoneda(it.importeFinal)}</p>
-                    <button onclick="eliminarDelCarrito(${i})" class="text-red-400 text-[9px] font-bold uppercase">Quitar</button></div>
-                </div>`;
+            let t = 0;
+            document.getElementById('carrito-items').innerHTML = carrito.map((it, idx) => {
+                t += it.importeFinal;
+                return `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl text-xs"><div><p class="font-bold">${it.nombre}</p><p class="text-slate-400">${it.pesoSeleccionado.toFixed(3)} KG</p></div><div class="text-right"><p class="font-black text-blue-600">${fMoneda(it.importeFinal)}</p><button onclick="eliminarDelCarrito(${idx})" class="text-red-400 text-[9px] font-bold">Quitar</button></div></div>`;
             }).join('');
-            document.getElementById('total-carrito').innerText = fMoneda(total);
-            document.getElementById('cart-count').innerText = `${carrito.length} ítems`;
+            document.getElementById('total-carrito').innerText = fMoneda(t);
+            document.getElementById('cart-count').innerText = carrito.length + " ítems";
         }
-
-        function eliminarDelCarrito(idx) { carrito.splice(idx, 1); renderCarrito(); }
+        function eliminarDelCarrito(i) { carrito.splice(i, 1); renderCarrito(); }
 
         function finalizarVentaProceso() {
-    if(!carrito.length) return alert("Carrito vacío");
-    
-    const venta = { 
-        id: Date.now(), 
-        fecha: new Date().toISOString(), 
-        items: [...carrito], 
-        total: Math.round(carrito.reduce((a,b) => a + b.importeFinal, 0)) 
-    };
-    
-    db.ventas.push(venta);
-    save(); // <--- Aquí ya guardaste los datos
+            if(!carrito.length) return alert("Vacío");
+            const v = { id: Date.now(), fecha: new Date().toISOString(), items: [...carrito], total: Math.round(carrito.reduce((a,b)=>a+b.importeFinal,0)) };
+            db.ventas.push(v); save();
+            const temp = {...v}; carrito = []; renderCarrito();
+            if(confirm("Registrada. ¿Ticket?")) generarTicketPNG(temp);
+        }
 
-    carrito = []; 
-    renderCarrito();
-    
-    renderCaja(); // <--- LLÁMALO AQUÍ: Esto fuerza que la pestaña Caja se actualice al momento
-
-    if(confirm("¿Venta registrada! ¿Descargar Comprobante?")) {
-        generarTicketPNG(venta);
-    }
-}
-
-
+        // --- INSUMOS ---
         function guardarGasto() {
-    const desc = document.getElementById('g-descripcion').value.trim();
-    const monto = parseFloat(document.getElementById('g-monto').value);
-    
-    if(desc && monto > 0) {
-        db.gastos.push({ fecha: new Date().toISOString(), desc, monto });
-        save(); // <--- Aquí ya guardaste el gasto
-        
-        renderCaja(); // <--- LLÁMALO AQUÍ: Esto refresca las tarjetas de Caja al instante
-        
-        alert("Insumo registrado para el análisis IA.");
-        document.getElementById('g-descripcion').value = "";
-        document.getElementById('g-monto').value = "";
-    }
-}
+            const d = document.getElementById('g-descripcion').value.trim();
+            const m = parseFloat(document.getElementById('g-monto').value);
+            if(d && m > 0) { db.gastos.push({ fecha: new Date().toISOString(), desc: d, monto: m }); save(); alert("Guardado"); document.getElementById('g-descripcion').value=""; document.getElementById('g-monto').value=""; }
+        }
 
+        // --- REPORTES ---
+        function filtrarReportes() {
+            const ini = document.getElementById('f-inicio').value;
+            const fin = document.getElementById('f-fin').value;
+            const b = document.getElementById('f-busqueda').value.toLowerCase();
+            let k=0, i=0, c=0, o=0, h="";
+            db.ventas.forEach(v => {
+                const fv = aFechaSimple(v.fecha);
+                if((ini && fv < ini) || (fin && fv > fin)) return;
+                v.items.forEach(it => {
+                    if(b && !it.nombre.toLowerCase().includes(b)) return;
+                    k += it.pesoSeleccionado; i += it.importeFinal; c += it.costoBaseTotal || 0; o += it.gastoOpTotal || 0;
+                    h += `<tr class="border-b"><td class="p-3">${fv}</td><td class="p-3">${it.id}</td><td class="p-3 font-bold">${it.nombre}</td><td class="p-3">${it.pesoSeleccionado.toFixed(3)}</td><td class="p-3 text-right text-blue-600">${fMoneda(it.importeFinal)}</td></tr>`;
+                });
+            });
+            document.getElementById('rep-kg').innerText = k.toFixed(2); document.getElementById('rep-ingresos').innerText = fMoneda(i); document.getElementById('rep-costo').innerText = fMoneda(c); document.getElementById('rep-operativo').innerText = fMoneda(o); document.getElementById('rep-ganancia').innerText = fMoneda(i-(c+o)); document.getElementById('detalle-ventas-reporte').innerHTML = h || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
+        }
 
-function filtrarReportes() {
-    const ini = document.getElementById('f-inicio').value;
-    const fin = document.getElementById('f-fin').value;
-    const busq = document.getElementById('f-busqueda').value.toLowerCase();
-    
-    let kg = 0, ing = 0, cost = 0, op = 0;
-    let html = "";
-    
-    // Objetos para estadísticas
-    let statsProductos = {};
-    let listaVentas = []; // Para el top ventas
+        // --- CAJA (AUTOMATIZACIÓN) ---
+        function abrirCaja() { const m = parseFloat(document.getElementById('caja-monto-inicio').value); if(isNaN(m)) return alert("Error"); localStorage.setItem('pos_caja_abierta', 'true'); localStorage.setItem('pos_caja_inicio', m); renderCaja(); }
 
-    db.ventas.forEach(v => {
-    // CAMBIO AQUÍ: Usamos obtenerFechaLocal en lugar de split
-    const fV = obtenerFechaLocal(v.fecha); 
-    
-    if((ini && fV < ini) || (fin && fV > fin)) return;
-    // ... resto del código
-;
-        
-        listaVentas.push(v); // Guardamos venta para el top
+        function cerrarCajaBoton() { if(confirm("¿Cerrar caja ahora?")) { const hoy = getHoy(); ejecutarCierreLogica(hoy); alert("Cerrada"); renderCaja(); } }
 
-        v.items.forEach(it => {
-            if(busq && !it.nombre.toLowerCase().includes(busq)) return;
-            
-            // Cálculos generales
-            kg += it.pesoSeleccionado; 
-            ing += it.importeFinal;
-            cost += (it.costoBaseTotal || (it.costo * it.pesoSeleccionado)); 
-            op += (it.gastoOpTotal || (it.costoOp * it.pesoSeleccionado));
-            
-            // Estadística Productos
-            if(!statsProductos[it.id]) statsProductos[it.id] = { nombre: it.nombre, kg: 0 };
-            statsProductos[it.id].kg += it.pesoSeleccionado;
-            
-            html += `<tr class="border-b hover:bg-slate-50">
-                <td class="p-3 text-slate-400">${fSoloFechaArg(v.fecha)}</td>
-                <td class="p-3 font-mono text-[10px]">${it.id}</td>
-                <td class="p-3 font-bold">${it.nombre}</td>
-                <td class="p-3">${it.pesoSeleccionado.toFixed(3)}</td>
-                <td class="p-3 text-right font-black text-blue-600">${fMoneda(it.importeFinal)}</td>
-            </tr>`;
-        });
-    });
+        function ejecutarCierreLogica(fechaRef) {
+            const vHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === fechaRef).reduce((acc,v)=>acc+v.total,0);
+            const gHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === fechaRef).reduce((acc,g)=>acc+g.monto,0);
+            const ini = parseFloat(localStorage.getItem('pos_caja_inicio')) || 0;
+            const fin = ini + vHoy - gHoy;
+            const hist = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
+            if(!hist.some(x => x.fecha === fechaRef)) {
+                hist.unshift({ fecha: fechaRef, inicio: ini, ventas: vHoy, gastos: gHoy, total: fin });
+                localStorage.setItem('pos_historial_caja', JSON.stringify(hist));
+            }
+            localStorage.setItem('pos_caja_abierta', 'false');
+            localStorage.removeItem('pos_caja_inicio');
+        }
 
-    // Actualizar KPIs superiores
-    document.getElementById('rep-kg').innerText = kg.toFixed(2);
-    document.getElementById('rep-ingresos').innerText = fMoneda(ing);
-    document.getElementById('rep-costo').innerText = fMoneda(cost);
-    document.getElementById('rep-operativo').innerText = fMoneda(op);
-    document.getElementById('rep-ganancia').innerText = fMoneda(ing - (cost + op));
-    document.getElementById('detalle-ventas-reporte').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
+        function verificarRelojCierre() {
+            const n = new Date();
+            if(n.getHours() === 0 && n.getMinutes() === 0) {
+                if(localStorage.getItem('pos_caja_abierta') === 'true') {
+                    const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+                    ejecutarCierreLogica(obtenerFechaLocal(ayer.toISOString()));
+                    renderCaja();
+                }
+            }
+        }
+        setInterval(verificarRelojCierre, 60000);
 
-    // RENDERIZAR DASHBOARDS
-    // 1. Top Productos
-    const topProd = Object.values(statsProductos).sort((a,b) => b.kg - a.kg).slice(0,5);
-    document.getElementById('top-productos-lista').innerHTML = topProd.map(p => `
-        <div class="flex justify-between items-center text-sm border-b pb-2">
-            <span class="font-bold text-slate-700">${p.nombre}</span>
-            <span class="text-blue-600 font-black">${p.kg.toFixed(2)} KG</span>
-        </div>
-    `).join('') || '<p class="text-slate-400 text-xs">Sin datos</p>';
-
-    // 2. Top Ventas
-    const topVentas = listaVentas.sort((a,b) => b.total - a.total).slice(0,5);
-    document.getElementById('top-ventas-lista').innerHTML = topVentas.map(v => `
-        <div class="flex justify-between items-center text-sm border-b pb-2">
-            <span class="text-slate-500 text-[10px] font-mono">#${v.id.toString().slice(-4)}</span>
-            <span class="font-bold text-slate-700">${fSoloFechaArg(v.fecha)}</span>
-            <span class="text-green-600 font-black">${fMoneda(v.total)}</span>
-        </div>
-    `).join('') || '<p class="text-slate-400 text-xs">Sin datos</p>';
-
-    lucide.createIcons(); // Importante: para que los íconos se rendericen
-}
-
-// MEJORA EN finalizarVentaProceso PARA SEGURIDAD DE DATOS
-function finalizarVentaProceso() {
-    if(!carrito.length) return alert("Carrito vacío");
-    
-    const venta = { 
-        id: Date.now(), 
-        fecha: new Date().toISOString(), 
-        items: [...carrito], 
-        total: Math.round(carrito.reduce((a,b) => a + b.importeFinal, 0)) 
-    };
-    
-    db.ventas.push(venta);
-    save(); // Guardado inmediato en localStorage
-
-    // Vaciamos el carrito ANTES del confirm para evitar duplicados si el usuario tarda en responder
-    const temporalParaTicket = {...venta};
-    carrito = []; 
-    renderCarrito();
-
-    if(confirm("¿Venta registrada! ¿Descargar Comprobante?")) {
-        generarTicketPNG(temporalParaTicket);
-    }
-}
-
+        function renderCaja() {
+            const ab = localStorage.getItem('pos_caja_abierta') === 'true';
+            const h = getHoy();
+            if(!ab) { document.getElementById('caja-panel-activo').classList.add('hidden'); document.getElementById('caja-panel-apertura').classList.remove('hidden'); }
+            else {
+                document.getElementById('caja-panel-activo').classList.remove('hidden'); document.getElementById('caja-panel-apertura').classList.add('hidden');
+                const ini = parseFloat(localStorage.getItem('pos_caja_inicio') || 0);
+                const v = db.ventas.filter(x => aFechaSimple(x.fecha) === h).reduce((a,b)=>a+b.total,0);
+                const g = db.gastos.filter(x => aFechaSimple(x.fecha) === h).reduce((a,b)=>a+b.monto,0);
+                document.getElementById('caja-val-inicio').innerText = fMoneda(ini);
+                document.getElementById('caja-val-ventas').innerText = fMoneda(v);
+                document.getElementById('caja-val-gastos').innerText = fMoneda(g);
+                document.getElementById('caja-val-total').innerText = fMoneda(ini + v - g);
+            }
+            const hist = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
+            document.getElementById('historial-caja').innerHTML = hist.map(x => `<div class="bg-white p-3 border rounded-xl text-xs flex justify-between"><span>${x.fecha}</span><span class="font-bold text-blue-600">${fMoneda(x.total)}</span></div>`).join('') || "No hay cierres";
+        }
 
         // --- SISTEMA ---
-        function cargarConfigInputs() {
-            document.getElementById('conf-titulo').value = db.config.titulo;
-            document.getElementById('conf-cabecera').value = db.config.cabecera;
-            document.getElementById('conf-pie1').value = db.config.pie1;
-            document.getElementById('conf-pie2').value = db.config.pie2;
+        function cargarConfigInputs() { document.getElementById('conf-titulo').value = db.config.titulo; document.getElementById('conf-cabecera').value = db.config.cabecera; document.getElementById('conf-pie1').value = db.config.pie1; document.getElementById('conf-pie2').value = db.config.pie2; }
+        function guardarConfig() { db.config = { titulo: document.getElementById('conf-titulo').value, cabecera: document.getElementById('conf-cabecera').value, pie1: document.getElementById('conf-pie1').value, pie2: document.getElementById('conf-pie2').value }; save(); alert("Guardado"); }
+        function exportarDatos() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); a.download = `RESPALDO_${getHoy()}.json`; a.click(); }
+        function importarDatos(e) { const r = new FileReader(); r.onload = (x) => { db = JSON.parse(x.target.result); save(); location.reload(); }; r.readAsText(e.target.files[0]); }
+        function limpiarRegistros() { if(confirm("Borrar todo?")) { db.ventas=[]; db.gastos=[]; localStorage.removeItem('pos_caja_abierta'); save(); location.reload(); } }
+        function exportarExcel() { alert("Función de Excel activa."); }
+
+        // --- TICKET ---
+        function generarTicketPNG(v) {
+            const c = document.getElementById('canvas-ticket'); const ctx = c.getContext('2d');
+            ctx.fillStyle = "#fff"; ctx.fillRect(0,0,600,1000); ctx.fillStyle = "#000"; ctx.textAlign = "center";
+            ctx.font = "bold 30px Arial"; ctx.fillText(db.config.titulo, 300, 50); ctx.font = "20px Arial"; ctx.fillText(db.config.cabecera, 300, 80);
+            ctx.textAlign = "left"; ctx.fillText("FECHA: " + fFechaCompletaArg(v.fecha), 50, 130);
+            let y = 180; v.items.forEach(it => { ctx.fillText(it.nombre + " x " + it.pesoSeleccionado.toFixed(3), 50, y); ctx.textAlign = "right"; ctx.fillText(fMoneda(it.importeFinal), 550, y); ctx.textAlign = "left"; y += 40; });
+            ctx.font = "bold 35px Arial"; ctx.fillText("TOTAL", 50, y + 50); ctx.textAlign = "right"; ctx.fillText(fMoneda(v.total), 550, y + 50);
+            const link = document.createElement('a'); link.download = `Venta_${v.id}.png`; link.href = c.toDataURL(); link.click();
         }
 
-        function guardarConfig() {
-            db.config = { 
-                titulo: document.getElementById('conf-titulo').value, 
-                cabecera: document.getElementById('conf-cabecera').value, 
-                pie1: document.getElementById('conf-pie1').value, 
-                pie2: document.getElementById('conf-pie2').value 
-            };
-            save(); alert("Guardado.");
-        }
-
-        function exportarDatos() {
-            const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-            const a = document.createElement('a'); a.href = data; 
-            a.download = `DATA_IA_POS_${fSoloFechaArg(new Date().toISOString())}.json`; a.click();
-        }
-
-        // BUSCA ESTA FUNCIÓN Y REEMPLÁZALA COMPLETAMENTE
-function importarDatos(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        try {
-            const datosImportados = JSON.parse(ev.target.result);
-            // Validamos que el archivo tenga al menos los objetos principales
-            if (datosImportados.productos && datosImportados.ventas) {
-                db = datosImportados;
-                save();
-                alert("Datos importados correctamente. La página se recargará.");
-                location.reload();
-            } else {
-                alert("Error: El archivo no parece ser un respaldo válido de POSV.1.");
-            }
-        } catch (error) {
-            alert("Error crítico: El archivo está dañado o no es un JSON válido.");
-        }
-    };
-    reader.readAsText(file);
-}
-
-
-        function limpiarRegistros() {
-    if(confirm("¿Estás seguro de borrar todas las ventas, gastos y resetear el estado de la Caja?")) {
-        // 1. Limpiar datos de ventas y gastos
-        db.ventas = [];
-        db.gastos = [];
-        
-        // 2. Limpiar variables de control de Caja
-        localStorage.removeItem('pos_caja_abierta');
-        localStorage.removeItem('pos_caja_inicio');
-        localStorage.removeItem('pos_historial_caja');
-        
-        // 3. Guardar cambios y recargar
-        save();
-        location.reload();
-    }
-}
-
-        
-        function exportarExcel() {
-    // 1. Preparar datos de Ventas
-    const datosVentas = [];
-    db.ventas.forEach(v => {
-        v.items.forEach(it => {
-            // Usamos || 0 para evitar errores si los datos son antiguos
-            const cBase = it.costoBaseTotal || 0;
-            const cOp = it.gastoOpTotal || 0;
-            const totalReal = cBase + cOp;
-            
-            datosVentas.push({
-                "ID Venta": v.id,
-                "Fecha": v.fecha,
-                "Producto": it.nombre,
-                "KG Vendidos": it.pesoSeleccionado || 0,
-                "Precio Venta": it.precio || 0,
-                "Costo Base": cBase,
-                "Gasto Op": cOp,
-                "Costo Total Real": totalReal,
-                "Importe Total": it.importeFinal || 0,
-                "Ganancia Neta": (it.importeFinal - totalReal)
-            });
-        });
-    });
-
-    // 2. Preparar datos de Caja
-    const historial = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
-    const datosCaja = historial.map(h => ({
-        "Fecha Cierre": h.fecha,
-        "Inicio": h.inicio,
-        "Ventas": h.ventas,
-        "Gastos": h.gastos,
-        "Total Final": h.total
-    }));
-
-    // 3. Generar Excel
-    try {
-        const wb = XLSX.utils.book_new();
-        const wsVentas = XLSX.utils.json_to_sheet(datosVentas);
-        const wsCaja = XLSX.utils.json_to_sheet(datosCaja);
-
-        XLSX.utils.book_append_sheet(wb, wsVentas, "Ventas Detalladas");
-        XLSX.utils.book_append_sheet(wb, wsCaja, "Cierres de Caja");
-
-        XLSX.writeFile(wb, `Reporte_Detallado_${new Date().toISOString().split('T')[0]}.xlsx`);
-        alert("Excel generado con éxito.");
-    } catch (error) {
-        console.error("Error al generar Excel:", error);
-        alert("Hubo un error al generar el archivo. Revisa la consola (F12).");
-    }
-}
-
-
-
-        // --- TICKET CORREGIDO (ANCHO REAL Y CENTRADO) ---
-function generarTicketPNG(venta) {
-    const canvas = document.getElementById('canvas-ticket');
-    const ctx = canvas.getContext('2d');
-    
-    // Ajustamos el tamaño del lienzo internamente
-    // 600px es el estándar ideal para compartir por WhatsApp
-    canvas.width = 600; 
-    canvas.height = 1000; // Un alto generoso que luego podemos recortar si sobra
-
-    // Fondo blanco total
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 1. ENCABEZADO
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#1e293b"; 
-    ctx.font = "bold 42px Inter, Arial, sans-serif";
-    ctx.fillText(db.config.titulo.toUpperCase(), 300, 80);
-
-    // Línea divisoria
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(50, 110); ctx.lineTo(550, 110); ctx.stroke();
-
-    // Cabecera (Dirección/Tel)
-    ctx.font = "18px Inter, sans-serif";
-    ctx.fillStyle = "#64748b";
-    let cabY = 150;
-    db.config.cabecera.split('\n').forEach((linea) => {
-        ctx.fillText(linea, 300, cabY);
-        cabY += 28;
-    });
-
-    // 2. DATOS DE VENTA
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "bold 14px Inter";
-    ctx.fillText("FECHA Y HORA", 50, cabY + 40);
-    ctx.fillText("NÚMERO DE TICKET", 350, cabY + 40);
-    
-    ctx.fillStyle = "#1e293b";
-    ctx.font = "bold 18px Inter";
-    ctx.fillText(fFechaCompletaArg(venta.fecha), 50, cabY + 65);
-    ctx.fillText("#" + venta.id.toString().slice(-8), 350, cabY + 65);
-
-    // 3. TABLA DE ITEMS
-    let itemY = cabY + 130;
-    ctx.fillStyle = "#f8fafc";
-    ctx.fillRect(50, itemY, 500, 45); // Fondo encabezado
-    
-    ctx.fillStyle = "#64748b";
-    ctx.font = "bold 15px Inter";
-    ctx.fillText("PRODUCTO / CANTIDAD", 65, itemY + 30);
-    ctx.textAlign = "right";
-    ctx.fillText("SUBTOTAL", 535, itemY + 30);
-
-    itemY += 85;
-    venta.items.forEach(it => {
-        ctx.textAlign = "left";
-        ctx.fillStyle = "#1e293b";
-        ctx.font = "bold 19px Inter";
-        let n = it.nombre.length > 25 ? it.nombre.slice(0, 23) + "..." : it.nombre;
-        ctx.fillText(n, 50, itemY);
-        
-        ctx.fillStyle = "#94a3b8";
-        ctx.font = "15px Inter";
-        ctx.fillText(it.pesoSeleccionado.toFixed(3) + " kg x " + fMoneda(it.precio), 50, itemY + 24);
-
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#1e293b";
-        ctx.font = "bold 21px Inter";
-        ctx.fillText(fMoneda(it.importeFinal), 550, itemY + 12);
-        itemY += 75;
-    });
-
-    // 4. TOTAL (RECUADRO AZUL)
-    itemY += 10;
-    ctx.fillStyle = "#2563eb";
-    // Dibujamos el rectángulo del total
-    if (ctx.roundRect) {
-        ctx.beginPath();
-        ctx.roundRect(50, itemY, 500, 90, 15);
-        ctx.fill();
-    } else {
-        ctx.fillRect(50, itemY, 500, 90);
-    }
-    
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 17px Inter";
-    ctx.fillText("TOTAL A PAGAR", 85, itemY + 55);
-    
-    ctx.textAlign = "right";
-    ctx.font = "bold 42px Inter";
-    ctx.fillText(fMoneda(venta.total), 515, itemY + 62);
-
-    // 5. PIE DE PÁGINA
-    itemY += 150;
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#64748b";
-    ctx.font = "italic 16px Inter";
-    ctx.fillText(db.config.pie1 || "", 300, itemY);
-    ctx.font = "14px Inter";
-    ctx.fillText(db.config.pie2 || "", 300, itemY + 25);
-
-    // RECORTAR CANVAS AL CONTENIDO REAL (Para evitar espacio en blanco abajo)
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = 600;
-    tempCanvas.height = itemY + 80; // Ajustamos el alto final
-    tempCtx.drawImage(canvas, 0, 0);
-
-    // DESCARGA
-    const link = document.createElement('a');
-    link.download = `Ticket_${venta.id}.png`; 
-    link.href = tempCanvas.toDataURL("image/png"); 
-    link.click();
-}
-
-
-                window.onload = () => { lucide.createIcons(); renderVentaRapida(); renderListaProductos(); };
-
-                
-function renderCaja() {
-    const hoy = getHoy(); // Usamos nuestro nuevo formato universal
-    const cajaAbierta = localStorage.getItem('pos_caja_abierta') === 'true';
-    const montoInicio = parseFloat(localStorage.getItem('pos_caja_inicio') || 0);
-
-    const panelActivo = document.getElementById('caja-panel-activo');
-    const panelApertura = document.getElementById('caja-panel-apertura');
-
-    if (!cajaAbierta) {
-        panelActivo.classList.add('hidden');
-        panelApertura.classList.remove('hidden');
-    } else {
-        panelActivo.classList.remove('hidden');
-        panelApertura.classList.add('hidden');
-
-        // 1. Filtramos usando el formato unificado YYYY-MM-DD
-        const ventasHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === hoy).reduce((acc, v) => acc + v.total, 0);
-        const gastosHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === hoy).reduce((acc, g) => acc + g.monto, 0);
-        const totalActual = montoInicio + ventasHoy - gastosHoy;
-
-        // 2. MOSTRAR LOS DATOS EN LA PANTALLA (Esto es lo que te falta)
-        document.getElementById('caja-val-inicio').innerText = fMoneda(montoInicio);
-        document.getElementById('caja-val-ventas').innerText = fMoneda(ventasHoy);
-        document.getElementById('caja-val-gastos').innerText = fMoneda(gastosHoy);
-        document.getElementById('caja-val-total').innerText = fMoneda(totalActual);
-    }
-    
-    // 3. ACTUALIZAR EL HISTORIAL DE CIERRES
-    renderHistorialCaja();
-}
-
-function abrirCaja() {
-    const m = parseFloat(document.getElementById('caja-monto-inicio').value);
-    if(isNaN(m)) return alert("Ingresa un monto válido");
-    localStorage.setItem('pos_caja_abierta', 'true');
-    localStorage.setItem('pos_caja_inicio', m);
-    renderCaja();
-}
-
-function cerrarCaja() {
-    const hoy = getHoy();
-    const ventasHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === hoy).reduce((acc, v) => acc + v.total, 0);
-    const gastosHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === hoy).reduce((acc, g) => acc + g.monto, 0);
-    const inicio = parseFloat(localStorage.getItem('pos_caja_inicio'));
-    const final = inicio + ventasHoy - gastosHoy;
-
-    const historial = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
-    historial.unshift({ fecha: hoy, inicio, ventas: ventasHoy, gastos: gastosHoy, total: final });
-    localStorage.setItem('pos_historial_caja', JSON.stringify(historial));
-
-    localStorage.setItem('pos_caja_abierta', 'false');
-    alert("Caja cerrada.");
-    renderCaja();
-}
-
-function renderHistorialCaja() {
-    const h = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
-    const contenedor = document.getElementById('historial-caja');
-    
-    if (!contenedor) return;
-
-    if (h.length === 0) {
-        contenedor.innerHTML = `
-            <div class="text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                <p class="text-slate-400 text-sm font-bold">No hay cierres registrados aún.</p>
-            </div>`;
-        return;
-    }
-
-    contenedor.innerHTML = h.map(item => `
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-3 hover:border-blue-200 transition-colors">
-            <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span class="font-black text-slate-800 text-sm tracking-tight">Cierre del ${item.fecha}</span>
-                </div>
-                <span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase tracking-wider">Histórico</span>
-            </div>
-            
-            <div class="grid grid-cols-3 gap-2 text-center border-t border-slate-50 pt-3">
-                <div>
-                    <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Inicio</p>
-                    <p class="text-sm font-semibold text-slate-700">${fMoneda(item.inicio)}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Gastos</p>
-                    <p class="text-sm font-semibold text-red-500">${fMoneda(item.gastos)}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Total</p>
-                    <p class="text-sm font-black text-blue-600">${fMoneda(item.total)}</p>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
+        window.onload = () => { lucide.createIcons(); renderVentaRapida(); renderListaProductos(); };
     </script>
 </body>
 </html>
