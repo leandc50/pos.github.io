@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POSV.1 Lite - Insumos Log</title>
+    <title>POSV.1 Lite - Custom</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -24,21 +24,15 @@
 <body class="bg-slate-100 text-slate-900 min-h-screen">
 
     <nav class="glass sticky top-0 z-50 border-b border-slate-200 shadow-sm">
-        <div class="flex overflow-x-auto justify-between max-w-5xl mx-auto px-2 scrollbar-hide">
+        <div class="flex overflow-x-auto justify-around max-w-5xl mx-auto px-2">
             <button onclick="showSection('ventas')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px] tab-active" id="btn-ventas">
                 <i data-lucide="shopping-cart" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Ventas</span>
             </button>
             <button onclick="showSection('productos')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-productos">
                 <i data-lucide="package" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Stock</span>
             </button>
-            <button onclick="showSection('gastos')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-gastos">
-                <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Insumos</span>
-            </button>
             <button onclick="showSection('reportes')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-reportes">
                 <i data-lucide="bar-chart-big" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Reportes</span>
-            </button>
-            <button onclick="showSection('caja')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-caja">
-                <i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Caja</span>
             </button>
             <button onclick="showSection('sistema')" class="nav-btn p-4 flex flex-col items-center flex-1 min-w-[70px]" id="btn-sistema">
                 <i data-lucide="settings-2" class="w-5 h-5"></i><span class="text-[10px] mt-1 uppercase font-bold">Sistema</span>
@@ -66,7 +60,7 @@
                     </div>
                     <div id="carrito-items" class="space-y-3 mb-6 max-h-80 overflow-y-auto pr-2"></div>
                     <div class="border-t border-dashed pt-4">
-                        <div class="flex justify-between text-2xl sm:text-3xl font-black text-blue-700 mb-6">
+                        <div class="flex justify-between text-2xl font-black text-blue-700 mb-6">
                             <span>TOTAL</span>
                             <span id="total-carrito">$0,00</span>
                         </div>
@@ -110,17 +104,6 @@
             </div>
         </section>
 
-        <section id="sec-gastos" class="section-content hidden">
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border max-w-lg mx-auto">
-                <h2 class="text-2xl font-black mb-6 text-orange-500">Registro de Insumos</h2>
-                <div class="space-y-4">
-                    <input type="text" id="g-descripcion" placeholder="Descripción" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none">
-                    <input type="number" id="g-monto" placeholder="Costo $" class="w-full p-4 border rounded-2xl bg-slate-50 outline-none">
-                    <button onclick="guardarGasto()" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-bold shadow-lg">Registrar</button>
-                </div>
-            </div>
-        </section>
-
         <section id="sec-reportes" class="section-content hidden">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6 text-center">
                 <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Kg Vendidos</p><p id="rep-kg">0</p></div>
@@ -147,31 +130,10 @@
             </div>
         </section>
 
-        <section id="sec-caja" class="section-content hidden">
-            <div id="caja-panel-activo" class="hidden">
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">INICIO</p><p id="caja-val-inicio" class="text-lg font-black"></p></div>
-                    <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">VENTAS</p><p id="caja-val-ventas" class="text-lg font-black text-green-600"></p></div>
-                    <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold">GASTOS</p><p id="caja-val-gastos" class="text-lg font-black text-red-600"></p></div>
-                    <div class="bg-blue-600 p-4 rounded-2xl text-white"><p class="text-[10px] text-blue-200 font-bold">TOTAL EFECTIVO</p><p id="caja-val-total" class="text-xl font-black"></p></div>
-                </div>
-                <button onclick="cerrarCajaBoton()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold">CERRAR CAJA</button>
-            </div>
-            <div id="caja-panel-apertura" class="bg-white p-6 rounded-3xl border shadow-sm">
-                <h2 class="text-xl font-bold mb-4">Abrir Caja</h2>
-                <input type="number" id="caja-monto-inicio" placeholder="Monto inicial $" class="w-full p-4 border rounded-2xl mb-4">
-                <button onclick="abrirCaja()" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold">INICIAR DÍA</button>
-            </div>
-            <div class="mt-8">
-                <h3 class="font-bold mb-4">Historial de Cierres</h3>
-                <div id="historial-caja" class="space-y-2"></div>
-            </div>
-        </section>
-
         <section id="sec-sistema" class="section-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-3xl border">
-                    <h3 class="font-bold mb-4 text-blue-600">Ticket</h3>
+                    <h3 class="font-bold mb-4 text-blue-600">Configuración Ticket</h3>
                     <div class="space-y-3">
                         <input type="text" id="conf-titulo" placeholder="Nombre" class="w-full p-3 border rounded-xl">
                         <textarea id="conf-cabecera" placeholder="Cabecera" class="w-full p-3 border rounded-xl h-20"></textarea>
@@ -208,11 +170,9 @@
     <canvas id="canvas-ticket" width="600" height="1000"></canvas>
 
     <script>
-        // --- DATA & CORE ---
         let db = {
             productos: JSON.parse(localStorage.getItem('pos_v121_prod')) || [],
             ventas: JSON.parse(localStorage.getItem('pos_v121_ventas')) || [],
-            gastos: JSON.parse(localStorage.getItem('pos_v121_gastos')) || [],
             config: JSON.parse(localStorage.getItem('pos_v121_conf')) || { titulo: 'MI NEGOCIO', cabecera: 'Dir. Comercial', pie1: 'Gracias', pie2: 'IVA RI' }
         };
         let carrito = [];
@@ -222,29 +182,24 @@
         const save = () => {
             localStorage.setItem('pos_v121_prod', JSON.stringify(db.productos));
             localStorage.setItem('pos_v121_ventas', JSON.stringify(db.ventas));
-            localStorage.setItem('pos_v121_gastos', JSON.stringify(db.gastos));
             localStorage.setItem('pos_v121_conf', JSON.stringify(db.config));
         };
 
-        // --- UTILIDADES ---
         const obtenerFechaLocal = (iso) => new Date(iso).toISOString().split('T')[0];
-        const getHoy = () => obtenerFechaLocal(new Date().toISOString());
         const aFechaSimple = (iso) => obtenerFechaLocal(iso);
         const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
         const fFechaCompletaArg = (iso) => new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-        // --- NAVEGACIÓN ---
         function showSection(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
             document.getElementById('sec-' + id).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
             document.getElementById('btn-' + id).classList.add('tab-active');
-            if (id === 'caja') renderCaja();
             if (id === 'sistema') cargarConfigInputs();
             lucide.createIcons();
         }
 
-        // --- PRODUCTOS ---
+        // --- FUNCIONES EXACTAS DEL INDEX ORIGINAL ---
         function guardarProducto() {
             const id = document.getElementById('p-id').value.trim();
             const nombre = document.getElementById('p-nombre').value.trim();
@@ -256,7 +211,7 @@
             if (editandoId === null && idx > -1) return alert("ID existente.");
             const pData = { id, nombre, costo, costoOp, precio };
             if (idx > -1) db.productos[idx] = pData; else db.productos.push(pData);
-            save(); limpiarFormularioProd(); renderListaProductos();
+            save(); limpiarFormularioProd(); renderListaProductos(); renderVentaRapida();
         }
 
         function renderListaProductos() {
@@ -271,11 +226,10 @@
                 </td></tr>`).join('');
         }
 
-        function eliminarProducto(id) { if(confirm("¿Borrar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); } }
+        function eliminarProducto(id) { if(confirm("¿Borrar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); renderVentaRapida(); } }
         function limpiarFormularioProd() { editandoId = null; document.getElementById('p-id').value = ""; document.getElementById('p-nombre').value = ""; document.getElementById('p-costo').value = ""; document.getElementById('p-costo-op').value = ""; document.getElementById('p-precio').value = ""; document.getElementById('titulo-form-prod').innerText = "Gestión"; }
         function cargarProductoEdicion(id) { const p = db.productos.find(x => x.id === id); if(!p) return; editandoId = id; document.getElementById('p-id').value = p.id; document.getElementById('p-nombre').value = p.nombre; document.getElementById('p-costo').value = p.costo; document.getElementById('p-costo-op').value = p.costoOp; document.getElementById('p-precio').value = p.precio; document.getElementById('titulo-form-prod').innerText = "Editando: " + p.nombre; window.scrollTo(0,0); }
 
-        // --- VENTAS ---
         function renderVentaRapida() {
             const b = document.getElementById('busqueda-venta').value.toLowerCase();
             const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
@@ -317,14 +271,6 @@
             if(confirm("Registrada. ¿Ticket?")) generarTicketPNG(temp);
         }
 
-        // --- INSUMOS ---
-        function guardarGasto() {
-            const d = document.getElementById('g-descripcion').value.trim();
-            const m = parseFloat(document.getElementById('g-monto').value);
-            if(d && m > 0) { db.gastos.push({ fecha: new Date().toISOString(), desc: d, monto: m }); save(); alert("Guardado"); document.getElementById('g-descripcion').value=""; document.getElementById('g-monto').value=""; }
-        }
-
-        // --- REPORTES ---
         function filtrarReportes() {
             const ini = document.getElementById('f-inicio').value;
             const fin = document.getElementById('f-fin').value;
@@ -342,64 +288,6 @@
             document.getElementById('rep-kg').innerText = k.toFixed(2); document.getElementById('rep-ingresos').innerText = fMoneda(i); document.getElementById('rep-costo').innerText = fMoneda(c); document.getElementById('rep-operativo').innerText = fMoneda(o); document.getElementById('rep-ganancia').innerText = fMoneda(i-(c+o)); document.getElementById('detalle-ventas-reporte').innerHTML = h || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
         }
 
-        // --- CAJA (AUTOMATIZACIÓN) ---
-        function abrirCaja() { const m = parseFloat(document.getElementById('caja-monto-inicio').value); if(isNaN(m)) return alert("Error"); localStorage.setItem('pos_caja_abierta', 'true'); localStorage.setItem('pos_caja_inicio', m); renderCaja(); }
-
-        function cerrarCajaBoton() { if(confirm("¿Cerrar caja ahora?")) { const hoy = getHoy(); ejecutarCierreLogica(hoy); alert("Cerrada"); renderCaja(); } }
-
-        function ejecutarCierreLogica(fechaRef) {
-            const vHoy = db.ventas.filter(v => aFechaSimple(v.fecha) === fechaRef).reduce((acc,v)=>acc+v.total,0);
-            const gHoy = db.gastos.filter(g => aFechaSimple(g.fecha) === fechaRef).reduce((acc,g)=>acc+g.monto,0);
-            const ini = parseFloat(localStorage.getItem('pos_caja_inicio')) || 0;
-            const fin = ini + vHoy - gHoy;
-            const hist = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
-            if(!hist.some(x => x.fecha === fechaRef)) {
-                hist.unshift({ fecha: fechaRef, inicio: ini, ventas: vHoy, gastos: gHoy, total: fin });
-                localStorage.setItem('pos_historial_caja', JSON.stringify(hist));
-            }
-            localStorage.setItem('pos_caja_abierta', 'false');
-            localStorage.removeItem('pos_caja_inicio');
-        }
-
-        function verificarRelojCierre() {
-            const n = new Date();
-            if(n.getHours() === 0 && n.getMinutes() === 0) {
-                if(localStorage.getItem('pos_caja_abierta') === 'true') {
-                    const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
-                    ejecutarCierreLogica(obtenerFechaLocal(ayer.toISOString()));
-                    renderCaja();
-                }
-            }
-        }
-        setInterval(verificarRelojCierre, 60000);
-
-        function renderCaja() {
-            const ab = localStorage.getItem('pos_caja_abierta') === 'true';
-            const h = getHoy();
-            if(!ab) { document.getElementById('caja-panel-activo').classList.add('hidden'); document.getElementById('caja-panel-apertura').classList.remove('hidden'); }
-            else {
-                document.getElementById('caja-panel-activo').classList.remove('hidden'); document.getElementById('caja-panel-apertura').classList.add('hidden');
-                const ini = parseFloat(localStorage.getItem('pos_caja_inicio') || 0);
-                const v = db.ventas.filter(x => aFechaSimple(x.fecha) === h).reduce((a,b)=>a+b.total,0);
-                const g = db.gastos.filter(x => aFechaSimple(x.fecha) === h).reduce((a,b)=>a+b.monto,0);
-                document.getElementById('caja-val-inicio').innerText = fMoneda(ini);
-                document.getElementById('caja-val-ventas').innerText = fMoneda(v);
-                document.getElementById('caja-val-gastos').innerText = fMoneda(g);
-                document.getElementById('caja-val-total').innerText = fMoneda(ini + v - g);
-            }
-            const hist = JSON.parse(localStorage.getItem('pos_historial_caja') || '[]');
-            document.getElementById('historial-caja').innerHTML = hist.map(x => `<div class="bg-white p-3 border rounded-xl text-xs flex justify-between"><span>${x.fecha}</span><span class="font-bold text-blue-600">${fMoneda(x.total)}</span></div>`).join('') || "No hay cierres";
-        }
-
-        // --- SISTEMA ---
-        function cargarConfigInputs() { document.getElementById('conf-titulo').value = db.config.titulo; document.getElementById('conf-cabecera').value = db.config.cabecera; document.getElementById('conf-pie1').value = db.config.pie1; document.getElementById('conf-pie2').value = db.config.pie2; }
-        function guardarConfig() { db.config = { titulo: document.getElementById('conf-titulo').value, cabecera: document.getElementById('conf-cabecera').value, pie1: document.getElementById('conf-pie1').value, pie2: document.getElementById('conf-pie2').value }; save(); alert("Guardado"); }
-        function exportarDatos() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); a.download = `RESPALDO_${getHoy()}.json`; a.click(); }
-        function importarDatos(e) { const r = new FileReader(); r.onload = (x) => { db = JSON.parse(x.target.result); save(); location.reload(); }; r.readAsText(e.target.files[0]); }
-        function limpiarRegistros() { if(confirm("Borrar todo?")) { db.ventas=[]; db.gastos=[]; localStorage.removeItem('pos_caja_abierta'); save(); location.reload(); } }
-        function exportarExcel() { alert("Función de Excel activa."); }
-
-        // --- TICKET ---
         function generarTicketPNG(v) {
             const c = document.getElementById('canvas-ticket'); const ctx = c.getContext('2d');
             ctx.fillStyle = "#fff"; ctx.fillRect(0,0,600,1000); ctx.fillStyle = "#000"; ctx.textAlign = "center";
@@ -409,6 +297,13 @@
             ctx.font = "bold 35px Arial"; ctx.fillText("TOTAL", 50, y + 50); ctx.textAlign = "right"; ctx.fillText(fMoneda(v.total), 550, y + 50);
             const link = document.createElement('a'); link.download = `Venta_${v.id}.png`; link.href = c.toDataURL(); link.click();
         }
+
+        function cargarConfigInputs() { document.getElementById('conf-titulo').value = db.config.titulo; document.getElementById('conf-cabecera').value = db.config.cabecera; document.getElementById('conf-pie1').value = db.config.pie1; document.getElementById('conf-pie2').value = db.config.pie2; }
+        function guardarConfig() { db.config = { titulo: document.getElementById('conf-titulo').value, cabecera: document.getElementById('conf-cabecera').value, pie1: document.getElementById('conf-pie1').value, pie2: document.getElementById('conf-pie2').value }; save(); alert("Guardado"); }
+        function exportarDatos() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); a.download = `RESPALDO.json`; a.click(); }
+        function importarDatos(e) { const r = new FileReader(); r.onload = (x) => { db = JSON.parse(x.target.result); save(); location.reload(); }; r.readAsText(e.target.files[0]); }
+        function limpiarRegistros() { if(confirm("Borrar todo?")) { db.ventas=[]; save(); location.reload(); } }
+        function exportarExcel() { alert("Exportación Excel lista."); }
 
         window.onload = () => { lucide.createIcons(); renderVentaRapida(); renderListaProductos(); };
     </script>
