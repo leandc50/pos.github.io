@@ -15,7 +15,6 @@
         .tab-active { border-bottom: 4px solid #2563eb; color: #2563eb; font-weight: 800; }
         .section-content { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #canvas-ticket { display: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         #modal-calculo { position: fixed !important; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
@@ -60,6 +59,13 @@
                     </div>
                     <div id="carrito-items" class="space-y-3 mb-6 max-h-80 overflow-y-auto pr-2"></div>
                     <div class="border-t border-dashed pt-4">
+                        <div class="mb-4">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Método de Pago</label>
+                            <select id="metodo-pago" class="w-full p-2 bg-slate-50 border rounded-xl font-bold outline-none text-sm">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
                         <div class="flex justify-between text-2xl font-black text-blue-700 mb-6">
                             <span>TOTAL</span>
                             <span id="total-carrito">$0,00</span>
@@ -105,12 +111,13 @@
         </section>
 
         <section id="sec-reportes" class="section-content hidden">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6 text-center">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6 text-center">
                 <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Kg Vendidos</p><p id="rep-kg">0</p></div>
-                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Ingresos</p><p id="rep-ingresos" class="text-blue-600">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Efectivo</p><p id="rep-efectivo" class="text-emerald-600">$0</p></div>
+                <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Transferencia</p><p id="rep-transferencia" class="text-purple-600">$0</p></div>
                 <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Costo Prod.</p><p id="rep-costo" class="text-red-400">$0</p></div>
                 <div class="bg-white p-3 rounded-2xl border text-xs font-bold"><p class="text-slate-400">Costo Op.</p><p id="rep-operativo" class="text-orange-400">$0</p></div>
-                <div class="bg-green-600 p-3 rounded-2xl text-white font-bold col-span-2 md:col-span-1"><p>Ganancia Neta</p><p id="rep-ganancia">$0</p></div>
+                <div class="bg-green-600 p-3 rounded-2xl text-white font-bold col-span-2 lg:col-span-1"><p>Ganancia Neta</p><p id="rep-ganancia">$0</p></div>
             </div>
             <div class="bg-white p-4 rounded-2xl border mb-6 flex flex-col sm:flex-row gap-4 items-end">
                 <input type="text" id="f-busqueda" placeholder="Buscar..." class="w-full p-2 border rounded-lg text-sm">
@@ -118,16 +125,8 @@
                 <input type="date" id="f-fin" class="w-full p-2 border rounded-lg text-sm">
                 <button onclick="filtrarReportes()" class="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold">Filtrar</button>
             </div>
-            <div class="bg-white rounded-3xl border overflow-hidden">
-                <div class="table-container">
-                    <table class="w-full text-xs text-left min-w-[500px]">
-                        <thead class="bg-slate-50 border-b text-slate-400">
-                            <tr><th class="p-3">FECHA</th><th class="p-3">ID</th><th class="p-3">PRODUCTO</th><th class="p-3">KG</th><th class="p-3 text-right">IMPORTE</th></tr>
-                        </thead>
-                        <tbody id="detalle-ventas-reporte"></tbody>
-                    </table>
+            <div id="detalle-ventas-reporte" class="space-y-3">
                 </div>
-            </div>
         </section>
 
         <section id="sec-sistema" class="section-content hidden">
@@ -153,7 +152,7 @@
     </main>
 
     <div id="modal-calculo" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center p-4 z-[100] backdrop-blur-sm">
-        <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm">
+        <div class="bg-white rounded-[2rem] p-6 w-full max-sm">
             <h3 id="modal-titulo" class="text-2xl font-black mb-1"></h3>
             <p id="modal-precio-info" class="text-blue-600 font-bold mb-6 text-sm"></p>
             <div class="space-y-6">
@@ -166,8 +165,6 @@
             </div>
         </div>
     </div>
-
-    <canvas id="canvas-ticket" width="600" height="1000"></canvas>
 
     <script>
         let db = {
@@ -185,10 +182,8 @@
             localStorage.setItem('pos_v121_conf', JSON.stringify(db.config));
         };
 
-        const obtenerFechaLocal = (iso) => new Date(iso).toISOString().split('T')[0];
-        const aFechaSimple = (iso) => obtenerFechaLocal(iso);
+        const aFechaSimple = (iso) => new Date(iso).toISOString().split('T')[0];
         const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
-        const fFechaCompletaArg = (iso) => new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
         function showSection(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
@@ -196,10 +191,10 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('tab-active'));
             document.getElementById('btn-' + id).classList.add('tab-active');
             if (id === 'sistema') cargarConfigInputs();
+            if (id === 'reportes') filtrarReportes();
             lucide.createIcons();
         }
 
-        // --- FUNCIONES EXACTAS DEL INDEX ORIGINAL ---
         function guardarProducto() {
             const id = document.getElementById('p-id').value.trim();
             const nombre = document.getElementById('p-nombre').value.trim();
@@ -207,16 +202,20 @@
             const costoOp = parseFloat(document.getElementById('p-costo-op').value) || 0;
             const precio = parseFloat(document.getElementById('p-precio').value) || 0;
             if(!id || !nombre || precio <= 0) return alert("Complete los campos.");
-            const idx = db.productos.findIndex(p => p.id === id);
-            if (editandoId === null && idx > -1) return alert("ID existente.");
+            const existeId = db.productos.find(p => p.id === id);
+            if (editandoId === null && existeId) return alert("Error: El ID ya existe.");
+            if (editandoId !== null && id !== editandoId && existeId) return alert("ID ya usado por otro producto.");
             const pData = { id, nombre, costo, costoOp, precio };
-            if (idx > -1) db.productos[idx] = pData; else db.productos.push(pData);
+            if (editandoId !== null) {
+                const idx = db.productos.findIndex(p => p.id === editandoId);
+                db.productos[idx] = pData;
+            } else { db.productos.push(pData); }
             save(); limpiarFormularioProd(); renderListaProductos(); renderVentaRapida();
         }
 
         function renderListaProductos() {
             const b = document.getElementById('busqueda-prod').value.toLowerCase();
-            const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
+            const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.toLowerCase().includes(b));
             document.getElementById('tabla-productos').innerHTML = f.map(p => `
                 <tr class="border-b text-xs"><td class="p-4">${p.id}</td><td class="p-4 font-bold">${p.nombre}</td>
                 <td class="p-4 text-center">${fMoneda(p.costo)}</td><td class="p-4 text-center font-black">${fMoneda(p.precio)}</td>
@@ -227,12 +226,24 @@
         }
 
         function eliminarProducto(id) { if(confirm("¿Borrar?")) { db.productos = db.productos.filter(p => p.id !== id); save(); renderListaProductos(); renderVentaRapida(); } }
-        function limpiarFormularioProd() { editandoId = null; document.getElementById('p-id').value = ""; document.getElementById('p-nombre').value = ""; document.getElementById('p-costo').value = ""; document.getElementById('p-costo-op').value = ""; document.getElementById('p-precio').value = ""; document.getElementById('titulo-form-prod').innerText = "Gestión"; }
-        function cargarProductoEdicion(id) { const p = db.productos.find(x => x.id === id); if(!p) return; editandoId = id; document.getElementById('p-id').value = p.id; document.getElementById('p-nombre').value = p.nombre; document.getElementById('p-costo').value = p.costo; document.getElementById('p-costo-op').value = p.costoOp; document.getElementById('p-precio').value = p.precio; document.getElementById('titulo-form-prod').innerText = "Editando: " + p.nombre; window.scrollTo(0,0); }
+        function limpiarFormularioProd() { 
+            editandoId = null; const inputId = document.getElementById('p-id');
+            inputId.value = ""; inputId.disabled = false; inputId.classList.remove('bg-gray-200');
+            document.getElementById('p-nombre').value = ""; document.getElementById('p-costo').value = ""; 
+            document.getElementById('p-costo-op').value = ""; document.getElementById('p-precio').value = ""; 
+            document.getElementById('titulo-form-prod').innerText = "Gestión"; 
+        }
+        function cargarProductoEdicion(id) { 
+            const p = db.productos.find(x => x.id === id); if(!p) return; editandoId = id; 
+            const inputId = document.getElementById('p-id'); inputId.value = p.id; inputId.disabled = true; inputId.classList.add('bg-gray-200');
+            document.getElementById('p-nombre').value = p.nombre; document.getElementById('p-costo').value = p.costo; 
+            document.getElementById('p-costo-op').value = p.costoOp; document.getElementById('p-precio').value = p.precio; 
+            document.getElementById('titulo-form-prod').innerText = "Editando: " + p.nombre; window.scrollTo(0,0); 
+        }
 
         function renderVentaRapida() {
             const b = document.getElementById('busqueda-venta').value.toLowerCase();
-            const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.includes(b));
+            const f = db.productos.filter(p => p.nombre.toLowerCase().includes(b) || p.id.toLowerCase().includes(b));
             document.getElementById('grid-productos-venta').innerHTML = f.map(p => `
                 <button onclick="abrirCalculo('${p.id}')" class="bg-white p-4 rounded-3xl border text-center shadow-sm">
                     <p class="font-extrabold text-sm mb-1">${p.nombre}</p><p class="text-blue-600 font-black text-xs">${fMoneda(p.precio)}</p>
@@ -247,7 +258,7 @@
             const p = parseFloat(document.getElementById('calc-peso').value);
             const i = parseFloat(document.getElementById('calc-importe').value);
             if(p > 0) {
-                carrito.push({ ...productoTemporal, pesoSeleccionado: p, importeFinal: i, costoBaseTotal: productoTemporal.costo * p, gastoOpTotal: productoTemporal.costoOp * p, idUnico: Date.now() });
+                carrito.push({ ...productoTemporal, pesoSeleccionado: p, importeFinal: i, costoBaseTotal: productoTemporal.costo * p, gastoOpTotal: productoTemporal.costoOp * p });
                 renderCarrito(); cerrarModal();
             }
         }
@@ -265,45 +276,120 @@
 
         function finalizarVentaProceso() {
             if(!carrito.length) return alert("Vacío");
-            const v = { id: Date.now(), fecha: new Date().toISOString(), items: [...carrito], total: Math.round(carrito.reduce((a,b)=>a+b.importeFinal,0)) };
+            const v = { id: Date.now(), fecha: new Date().toISOString(), items: [...carrito], total: Math.round(carrito.reduce((a,b)=>a+b.importeFinal,0)), metodo: document.getElementById('metodo-pago').value };
             db.ventas.push(v); save();
-            const temp = {...v}; carrito = []; renderCarrito();
-            if(confirm("Registrada. ¿Ticket?")) generarTicketPNG(temp);
+            const idVenta = v.id; carrito = []; renderCarrito();
+            if(confirm("Venta Registrada. ¿Enviar ticket por WhatsApp?")) compartirWhatsApp(idVenta);
         }
 
         function filtrarReportes() {
             const ini = document.getElementById('f-inicio').value;
             const fin = document.getElementById('f-fin').value;
             const b = document.getElementById('f-busqueda').value.toLowerCase();
-            let k=0, i=0, c=0, o=0, h="";
-            db.ventas.forEach(v => {
+            let k=0, i=0, c=0, o=0, h="", efec=0, trans=0;
+
+            [...db.ventas].reverse().forEach(v => {
                 const fv = aFechaSimple(v.fecha);
+                const hora = new Date(v.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 if((ini && fv < ini) || (fin && fv > fin)) return;
-                v.items.forEach(it => {
-                    if(b && !it.nombre.toLowerCase().includes(b)) return;
-                    k += it.pesoSeleccionado; i += it.importeFinal; c += it.costoBaseTotal || 0; o += it.gastoOpTotal || 0;
-                    h += `<tr class="border-b"><td class="p-3">${fv}</td><td class="p-3">${it.id}</td><td class="p-3 font-bold">${it.nombre}</td><td class="p-3">${it.pesoSeleccionado.toFixed(3)}</td><td class="p-3 text-right text-blue-600">${fMoneda(it.importeFinal)}</td></tr>`;
-                });
+                const tieneProducto = v.items.some(it => it.nombre.toLowerCase().includes(b));
+                if(b && !tieneProducto) return;
+
+                if(v.metodo === "Efectivo") efec += v.total; else trans += v.total;
+                v.items.forEach(it => { k += it.pesoSeleccionado; i += it.importeFinal; c += it.costoBaseTotal || 0; o += it.gastoOpTotal || 0; });
+
+                h += `
+                <div class="bg-white border rounded-2xl overflow-hidden shadow-sm">
+                    <div onclick="toggleTicket('${v.id}')" class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50">
+                        <div class="text-left">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">${fv} - ${hora}</p>
+                            <p class="font-black text-slate-700">Ticket #${v.id.toString().slice(-4)}</p>
+                            <p class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full inline-block mt-1">${v.metodo}</p>
+                        </div>
+                        <div class="text-right flex items-center gap-3">
+                            <div class="mr-2">
+                                <p class="font-black text-blue-600">${fMoneda(v.total)}</p>
+                                <p class="text-[10px] text-slate-400">${v.items.length} ítems</p>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-300"></i>
+                        </div>
+                    </div>
+                    <div id="det-${v.id}" class="hidden bg-slate-50 border-t p-4">
+                        <table class="w-full text-[11px] mb-4">
+                            ${v.items.map(it => `<tr><td class="py-1 font-bold">${it.nombre}</td><td class="text-center">${it.pesoSeleccionado.toFixed(3)}kg</td><td class="text-right">${fMoneda(it.importeFinal)}</td></tr>`).join('')}
+                        </table>
+                        <button onclick="compartirWhatsApp('${v.id}')" class="w-full bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs flex justify-center items-center gap-2">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i> Compartir WhatsApp
+                        </button>
+                    </div>
+                </div>`;
             });
-            document.getElementById('rep-kg').innerText = k.toFixed(2); document.getElementById('rep-ingresos').innerText = fMoneda(i); document.getElementById('rep-costo').innerText = fMoneda(c); document.getElementById('rep-operativo').innerText = fMoneda(o); document.getElementById('rep-ganancia').innerText = fMoneda(i-(c+o)); document.getElementById('detalle-ventas-reporte').innerHTML = h || '<tr><td colspan="5" class="p-4 text-center">Sin datos</td></tr>';
+            document.getElementById('rep-kg').innerText = k.toFixed(2);
+            document.getElementById('rep-efectivo').innerText = fMoneda(efec);
+            document.getElementById('rep-transferencia').innerText = fMoneda(trans);
+            document.getElementById('rep-costo').innerText = fMoneda(c);
+            document.getElementById('rep-operativo').innerText = fMoneda(o);
+            document.getElementById('rep-ganancia').innerText = fMoneda(i-(c+o));
+            document.getElementById('detalle-ventas-reporte').innerHTML = h || '<p class="text-center p-8 text-slate-400 text-xs">Sin registros</p>';
+            lucide.createIcons();
         }
 
-        function generarTicketPNG(v) {
-            const c = document.getElementById('canvas-ticket'); const ctx = c.getContext('2d');
-            ctx.fillStyle = "#fff"; ctx.fillRect(0,0,600,1000); ctx.fillStyle = "#000"; ctx.textAlign = "center";
-            ctx.font = "bold 30px Arial"; ctx.fillText(db.config.titulo, 300, 50); ctx.font = "20px Arial"; ctx.fillText(db.config.cabecera, 300, 80);
-            ctx.textAlign = "left"; ctx.fillText("FECHA: " + fFechaCompletaArg(v.fecha), 50, 130);
-            let y = 180; v.items.forEach(it => { ctx.fillText(it.nombre + " x " + it.pesoSeleccionado.toFixed(3), 50, y); ctx.textAlign = "right"; ctx.fillText(fMoneda(it.importeFinal), 550, y); ctx.textAlign = "left"; y += 40; });
-            ctx.font = "bold 35px Arial"; ctx.fillText("TOTAL", 50, y + 50); ctx.textAlign = "right"; ctx.fillText(fMoneda(v.total), 550, y + 50);
-            const link = document.createElement('a'); link.download = `Venta_${v.id}.png`; link.href = c.toDataURL(); link.click();
-        }
+        function toggleTicket(id) { document.getElementById('det-' + id).classList.toggle('hidden'); }
+
+        function compartirWhatsApp(id) {
+    const v = db.ventas.find(x => x.id == id);
+    if (!v) return;
+
+    const f = new Date(v.fecha).toLocaleDateString();
+    const h = new Date(v.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Armado del mensaje usando la configuración del sistema
+    let m = `*${db.config.titulo}*\n`; // Nombre del negocio
+    if (db.config.cabecera) m += `_${db.config.cabecera}_\n`; // Dirección o subtítulo
+    m += `--------------------------\n`;
+    m += `📅 ${f} ${h}\n`;
+    m += `💳 Pago: ${v.metodo}\n`;
+    m += `--------------------------\n`;
+
+    v.items.forEach(it => {
+        m += `• ${it.nombre}\n`;
+        m += `  ${it.pesoSeleccionado.toFixed(3)}kg x ${fMoneda(it.precio)} = *${fMoneda(it.importeFinal)}*\n`;
+    });
+
+    m += `--------------------------\n`;
+    m += `*TOTAL: ${fMoneda(v.total)}*\n`;
+    m += `--------------------------\n`;
+    
+    if (db.config.pie1) m += `${db.config.pie1}\n`; // Gracias por su compra
+    if (db.config.pie2) m += `_${db.config.pie2}_`; // IVA o redes sociales
+
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`, '_blank');
+}
+
 
         function cargarConfigInputs() { document.getElementById('conf-titulo').value = db.config.titulo; document.getElementById('conf-cabecera').value = db.config.cabecera; document.getElementById('conf-pie1').value = db.config.pie1; document.getElementById('conf-pie2').value = db.config.pie2; }
-        function guardarConfig() { db.config = { titulo: document.getElementById('conf-titulo').value, cabecera: document.getElementById('conf-cabecera').value, pie1: document.getElementById('conf-pie1').value, pie2: document.getElementById('conf-pie2').value }; save(); alert("Guardado"); }
+        function guardarConfig() {
+    db.config = {
+        titulo: document.getElementById('conf-titulo').value.toUpperCase(),
+        cabecera: document.getElementById('conf-cabecera').value,
+        pie1: document.getElementById('conf-pie1').value,
+        pie2: document.getElementById('conf-pie2').value
+    };
+    save();
+    alert("Configuración de ticket guardada. Se aplicará a los próximos envíos.");
+}
+
         function exportarDatos() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); a.download = `RESPALDO.json`; a.click(); }
         function importarDatos(e) { const r = new FileReader(); r.onload = (x) => { db = JSON.parse(x.target.result); save(); location.reload(); }; r.readAsText(e.target.files[0]); }
         function limpiarRegistros() { if(confirm("Borrar todo?")) { db.ventas=[]; save(); location.reload(); } }
-        function exportarExcel() { alert("Exportación Excel lista."); }
+        function exportarExcel() {
+            if (!db.ventas.length) return alert("Sin datos.");
+            const wb = XLSX.utils.book_new();
+            const ws_prod = XLSX.utils.json_to_sheet(db.productos); XLSX.utils.book_append_sheet(wb, ws_prod, "Productos");
+            const vA = db.ventas.flatMap(v => v.items.map(it => ({ Fecha: aFechaSimple(v.fecha), Ticket: v.id, Metodo: v.metodo, Producto: it.nombre, KG: it.pesoSeleccionado, Importe: it.importeFinal, Total_Ticket: v.total })));
+            const ws_ventas = XLSX.utils.json_to_sheet(vA); XLSX.utils.book_append_sheet(wb, ws_ventas, "Ventas");
+            XLSX.writeFile(wb, `Reporte_POS_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
 
         window.onload = () => { lucide.createIcons(); renderVentaRapida(); renderListaProductos(); };
     </script>
