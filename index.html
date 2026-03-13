@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -182,7 +182,10 @@
             localStorage.setItem('pos_v121_conf', JSON.stringify(db.config));
         };
 
-        const aFechaSimple = (iso) => new Date(iso).toISOString().split('T')[0];
+        const aFechaSimple = (valor) => {
+            const d = new Date(valor);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        };
         const fMoneda = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v);
 
         function showSection(id) {
@@ -276,119 +279,163 @@
 
         function finalizarVentaProceso() {
             if(!carrito.length) return alert("Vacío");
-            const v = { id: Date.now(), fecha: new Date().toISOString(), items: [...carrito], total: Math.round(carrito.reduce((a,b)=>a+b.importeFinal,0)), metodo: document.getElementById('metodo-pago').value };
+            const v = { id: Date.now(), fecha: Date.now(), items: [...carrito], total: Math.round(carrito.reduce((a,b)=>a+b.importeFinal,0)), metodo: document.getElementById('metodo-pago').value };
             db.ventas.push(v); save();
             const idVenta = v.id; carrito = []; renderCarrito();
             if(confirm("Venta Registrada. ¿Enviar ticket por WhatsApp?")) compartirWhatsApp(idVenta);
         }
 
         function filtrarReportes() {
-            const ini = document.getElementById('f-inicio').value;
-            const fin = document.getElementById('f-fin').value;
-            const b = document.getElementById('f-busqueda').value.toLowerCase();
-            let k=0, i=0, c=0, o=0, h="", efec=0, trans=0;
+    const ini = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    const b = document.getElementById('f-busqueda').value.toLowerCase();
+    let k=0, i=0, c=0, o=0, h="", efec=0, trans=0;
 
-            [...db.ventas].reverse().forEach(v => {
-                const fv = aFechaSimple(v.fecha);
-                const hora = new Date(v.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                if((ini && fv < ini) || (fin && fv > fin)) return;
-                const tieneProducto = v.items.some(it => it.nombre.toLowerCase().includes(b));
-                if(b && !tieneProducto) return;
+    const ventasParaMostrar = db.ventas.slice().reverse();
 
-                if(v.metodo === "Efectivo") efec += v.total; else trans += v.total;
-                v.items.forEach(it => { k += it.pesoSeleccionado; i += it.importeFinal; c += it.costoBaseTotal || 0; o += it.gastoOpTotal || 0; });
+    ventasParaMostrar.forEach(v => {
+        const d = new Date(v.fecha);
+        const fv = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+        
+        // 1. Filtro por fecha
+        if((ini && fv < ini) || (fin && fv > fin)) return;
 
-                h += `
-                <div class="bg-white border rounded-2xl overflow-hidden shadow-sm">
-                    <div onclick="toggleTicket('${v.id}')" class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50">
-                        <div class="text-left">
-                            <p class="text-[10px] text-slate-400 font-bold uppercase">${fv} - ${hora}</p>
-                            <p class="font-black text-slate-700">Ticket #${v.id.toString().slice(-4)}</p>
-                            <p class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full inline-block mt-1">${v.metodo}</p>
-                        </div>
-                        <div class="text-right flex items-center gap-3">
-                            <div class="mr-2">
-                                <p class="font-black text-blue-600">${fMoneda(v.total)}</p>
-                                <p class="text-[10px] text-slate-400">${v.items.length} ítems</p>
-                            </div>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-300"></i>
-                        </div>
+        // 2. Filtro de productos dentro del ticket
+        const itemsFiltrados = v.items.filter(it => it.nombre.toLowerCase().includes(b));
+        
+        // Si hay búsqueda y este ticket no tiene el producto, lo saltamos
+        if(b && itemsFiltrados.length === 0) return;
+
+        // 3. Contabilizar solo lo que coincide con la búsqueda (o todo si no hay búsqueda)
+        let totalTicketFiltrado = 0;
+        itemsFiltrados.forEach(it => { 
+            k += it.pesoSeleccionado; 
+            i += it.importeFinal; 
+            c += it.costoBaseTotal || 0; 
+            o += it.gastoOpTotal || 0;
+            totalTicketFiltrado += it.importeFinal;
+        });
+
+        // El método de pago se suma proporcionalmente a lo filtrado para no falsear el efectivo
+        if(v.metodo === "Efectivo") efec += totalTicketFiltrado; else trans += totalTicketFiltrado;
+
+        h += `
+        <div class="bg-white border rounded-2xl overflow-hidden shadow-sm mb-3">
+            <div onclick="toggleTicket('${v.id}')" class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50">
+                <div class="text-left">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">${fv} - ${hora}</p>
+                    <p class="font-black text-slate-700">Ticket #${v.id.toString().slice(-4)}</p>
+                    <p class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full inline-block mt-1">${v.metodo}</p>
+                </div>
+                <div class="text-right flex items-center gap-3">
+                    <div class="mr-2">
+                        <p class="font-black text-blue-600">${fMoneda(totalTicketFiltrado)}</p>
+                        <p class="text-[10px] text-slate-400">${itemsFiltrados.length} ítems coinciden</p>
                     </div>
-                    <div id="det-${v.id}" class="hidden bg-slate-50 border-t p-4">
-                        <table class="w-full text-[11px] mb-4">
-                            ${v.items.map(it => `<tr><td class="py-1 font-bold">${it.nombre}</td><td class="text-center">${it.pesoSeleccionado.toFixed(3)}kg</td><td class="text-right">${fMoneda(it.importeFinal)}</td></tr>`).join('')}
-                        </table>
-                        <button onclick="compartirWhatsApp('${v.id}')" class="w-full bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs flex justify-center items-center gap-2">
-                            <i data-lucide="message-circle" class="w-4 h-4"></i> Compartir WhatsApp
-                        </button>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('rep-kg').innerText = k.toFixed(2);
-            document.getElementById('rep-efectivo').innerText = fMoneda(efec);
-            document.getElementById('rep-transferencia').innerText = fMoneda(trans);
-            document.getElementById('rep-costo').innerText = fMoneda(c);
-            document.getElementById('rep-operativo').innerText = fMoneda(o);
-            document.getElementById('rep-ganancia').innerText = fMoneda(i-(c+o));
-            document.getElementById('detalle-ventas-reporte').innerHTML = h || '<p class="text-center p-8 text-slate-400 text-xs">Sin registros</p>';
-            lucide.createIcons();
-        }
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-300"></i>
+                </div>
+            </div>
+            <div id="det-${v.id}" class="hidden bg-slate-50 border-t p-4">
+                <table class="w-full text-[11px] mb-4">
+                    ${itemsFiltrados.map(it => `<tr><td class="py-1 font-bold">${it.nombre} ${b && it.nombre.toLowerCase().includes(b) ? '✅' : ''}</td><td class="text-center">${it.pesoSeleccionado.toFixed(3)}kg</td><td class="text-right">${fMoneda(it.importeFinal)}</td></tr>`).join('')}
+                </table>
+                <button onclick="compartirWhatsApp('${v.id}')" class="w-full bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs flex justify-center items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Enviar Ticket Completo
+                </button>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById('rep-kg').innerText = k.toFixed(2);
+    document.getElementById('rep-efectivo').innerText = fMoneda(efec);
+    document.getElementById('rep-transferencia').innerText = fMoneda(trans);
+    document.getElementById('rep-costo').innerText = fMoneda(c);
+    document.getElementById('rep-operativo').innerText = fMoneda(o);
+    document.getElementById('rep-ganancia').innerText = fMoneda(i-(c+o));
+    document.getElementById('detalle-ventas-reporte').innerHTML = h || '<p class="text-center p-8 text-slate-400 text-xs">Sin registros</p>';
+    lucide.createIcons();
+}
 
         function toggleTicket(id) { document.getElementById('det-' + id).classList.toggle('hidden'); }
 
         function compartirWhatsApp(id) {
-    const v = db.ventas.find(x => x.id == id);
-    if (!v) return;
+            const v = db.ventas.find(x => x.id == id);
+            if (!v) return;
 
-    const f = new Date(v.fecha).toLocaleDateString();
-    const h = new Date(v.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const d = new Date(v.fecha);
+            const f = d.toLocaleDateString();
+            const h = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-    // Armado del mensaje usando la configuración del sistema
-    let m = `*${db.config.titulo}*\n`; // Nombre del negocio
-    if (db.config.cabecera) m += `_${db.config.cabecera}_\n`; // Dirección o subtítulo
-    m += `--------------------------\n`;
-    m += `📅 ${f} ${h}\n`;
-    m += `💳 Pago: ${v.metodo}\n`;
-    m += `--------------------------\n`;
+            let m = `*${db.config.titulo}*\n`;
+            if (db.config.cabecera) m += `_${db.config.cabecera}_\n`;
+            m += `--------------------------\n`;
+            m += `📅 ${f} ${h}\n`;
+            m += `💳 Pago: ${v.metodo}\n`;
+            m += `--------------------------\n`;
 
-    v.items.forEach(it => {
-        m += `• ${it.nombre}\n`;
-        m += `  ${it.pesoSeleccionado.toFixed(3)}kg x ${fMoneda(it.precio)} = *${fMoneda(it.importeFinal)}*\n`;
-    });
+            v.items.forEach(it => {
+                m += `• ${it.nombre}\n`;
+                m += `  ${it.pesoSeleccionado.toFixed(3)}kg x ${fMoneda(it.precio)} = *${fMoneda(it.importeFinal)}*\n`;
+            });
 
-    m += `--------------------------\n`;
-    m += `*TOTAL: ${fMoneda(v.total)}*\n`;
-    m += `--------------------------\n`;
-    
-    if (db.config.pie1) m += `${db.config.pie1}\n`; // Gracias por su compra
-    if (db.config.pie2) m += `_${db.config.pie2}_`; // IVA o redes sociales
+            m += `--------------------------\n`;
+            m += `*TOTAL: ${fMoneda(v.total)}*\n`;
+            m += `--------------------------\n`;
+            
+            if (db.config.pie1) m += `${db.config.pie1}\n`;
+            if (db.config.pie2) m += `_${db.config.pie2}_`;
 
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`, '_blank');
-}
-
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`, '_blank');
+        }
 
         function cargarConfigInputs() { document.getElementById('conf-titulo').value = db.config.titulo; document.getElementById('conf-cabecera').value = db.config.cabecera; document.getElementById('conf-pie1').value = db.config.pie1; document.getElementById('conf-pie2').value = db.config.pie2; }
+        
         function guardarConfig() {
-    db.config = {
-        titulo: document.getElementById('conf-titulo').value.toUpperCase(),
-        cabecera: document.getElementById('conf-cabecera').value,
-        pie1: document.getElementById('conf-pie1').value,
-        pie2: document.getElementById('conf-pie2').value
-    };
-    save();
-    alert("Configuración de ticket guardada. Se aplicará a los próximos envíos.");
-}
+            db.config = {
+                titulo: document.getElementById('conf-titulo').value,
+                cabecera: document.getElementById('conf-cabecera').value,
+                pie1: document.getElementById('conf-pie1').value,
+                pie2: document.getElementById('conf-pie2').value
+            };
+            save();
+            alert("Configuración de ticket guardada.");
+        }
 
         function exportarDatos() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); a.download = `RESPALDO.json`; a.click(); }
         function importarDatos(e) { const r = new FileReader(); r.onload = (x) => { db = JSON.parse(x.target.result); save(); location.reload(); }; r.readAsText(e.target.files[0]); }
         function limpiarRegistros() { if(confirm("Borrar todo?")) { db.ventas=[]; save(); location.reload(); } }
+        
         function exportarExcel() {
             if (!db.ventas.length) return alert("Sin datos.");
-            const wb = XLSX.utils.book_new();
-            const ws_prod = XLSX.utils.json_to_sheet(db.productos); XLSX.utils.book_append_sheet(wb, ws_prod, "Productos");
-            const vA = db.ventas.flatMap(v => v.items.map(it => ({ Fecha: aFechaSimple(v.fecha), Ticket: v.id, Metodo: v.metodo, Producto: it.nombre, KG: it.pesoSeleccionado, Importe: it.importeFinal, Total_Ticket: v.total })));
-            const ws_ventas = XLSX.utils.json_to_sheet(vA); XLSX.utils.book_append_sheet(wb, ws_ventas, "Ventas");
-            XLSX.writeFile(wb, `Reporte_POS_${new Date().toISOString().split('T')[0]}.xlsx`);
+            try {
+                const wb = XLSX.utils.book_new();
+                const ws_prod = XLSX.utils.json_to_sheet(db.productos);
+                XLSX.utils.book_append_sheet(wb, ws_prod, "Productos");
+
+                let vA = [];
+                db.ventas.forEach(v => {
+                    v.items.forEach((it, index) => {
+                        vA.push({
+                            "Fecha": index === 0 ? aFechaSimple(v.fecha) : "",
+                            "Ticket": index === 0 ? v.id : "",
+                            "Metodo": index === 0 ? v.metodo : "",
+                            "Producto": it.nombre,
+                            "KG": it.pesoSeleccionado,
+                            "Importe": it.importeFinal,
+                            "TOTAL TICKET": index === 0 ? v.total : ""
+                        });
+                    });
+                    vA.push({ "Fecha": "", "Ticket": "", "Metodo": "", "Producto": "", "KG": "", "Importe": "", "TOTAL TICKET": "" });
+                });
+
+                const ws_ventas = XLSX.utils.json_to_sheet(vA);
+                XLSX.utils.book_append_sheet(wb, ws_ventas, "Registro_Ventas");
+                XLSX.writeFile(wb, `Reporte_POS_${new Date().toISOString().split('T')[0]}.xlsx`);
+            } catch (e) {
+                console.error(e);
+                alert("Error al generar Excel");
+            }
         }
 
         window.onload = () => { lucide.createIcons(); renderVentaRapida(); renderListaProductos(); };
